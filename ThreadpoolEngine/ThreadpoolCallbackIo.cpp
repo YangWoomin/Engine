@@ -75,10 +75,10 @@ BOOL CThreadpoolCallbackIo::ReleaseThreadpoolCallbackObject(BOOL fCancelPendingC
 
 	if (NULL != _pThreadpoolCallbackObject)
 	{
-		bResult = CancelThreadpoolCallbackIo(errorCode);
+		bResult = CancelThreadpoolCallbackIo(fCancelPendingCallbacks, errorCode);
 
 		// 바인딩된 장치의 모든 중첩 입출력 취소의 결과와 무관하게 콜백 객체는 해제되어야 함
-		::WaitForThreadpoolIoCallbacks(_pThreadpoolCallbackObject, fCancelPendingCallbacks);
+		// ::WaitForThreadpoolIoCallbacks(_pThreadpoolCallbackObject, fCancelPendingCallbacks);
 		::CloseThreadpoolIo(_pThreadpoolCallbackObject);
 		_pThreadpoolCallbackObject = NULL;
 	}
@@ -140,7 +140,7 @@ BOOL CThreadpoolCallbackIo::SetCallbackData(ICallbackData* pCallbackData, ERROR_
 	return TRUE;
 }
 
-BOOL CThreadpoolCallbackIo::ExecuteThreadpoolCallbackIo(ICallbackData* pCallbackData, ERROR_CODE& errorCode)
+BOOL CThreadpoolCallbackIo::ExecuteThreadpoolCallbackIo(ERROR_CODE& errorCode)
 {
 	// 콜백 객체가 바인딩되지 않았음
 	if (NULL == _pThreadpoolCallbackObject)
@@ -215,7 +215,7 @@ ICallbackData* CThreadpoolCallbackIo::GetCallbackData()
 	return _pCallbackData;
 }
 
-BOOL CThreadpoolCallbackIo::CancelThreadpoolCallbackIo(ERROR_CODE& errorCode)
+BOOL CThreadpoolCallbackIo::CancelThreadpoolCallbackIo(BOOL bCancelPendingCallbacks, ERROR_CODE& errorCode)
 {
 	// 콜백 객체가 바인딩되지 않았음
 	if (NULL == _pThreadpoolCallbackObject)
@@ -236,6 +236,13 @@ BOOL CThreadpoolCallbackIo::CancelThreadpoolCallbackIo(ERROR_CODE& errorCode)
 	if (FALSE == bResult)
 	{
 		errorCode = (ERROR_CODE)::GetLastError();
+	}
+
+	::WaitForThreadpoolIoCallbacks(_pThreadpoolCallbackObject, bCancelPendingCallbacks);
+	errorCode = (ERROR_CODE)::GetLastError();
+	if (ERROR_CODE_NONE != errorCode)
+	{
+		bResult = FALSE;
 	}
 
 	return bResult;

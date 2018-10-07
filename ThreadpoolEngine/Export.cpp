@@ -29,7 +29,7 @@ CThreadpoolCallbackWorkWrapper::~CThreadpoolCallbackWorkWrapper()
 	}
 }
 
-BOOL CThreadpoolCallbackWorkWrapper::ExecuteThreadpoolCallbackWorkWrapper(ICallbackData* pCallbackData, ERROR_CODE& errorCode)
+BOOL CThreadpoolCallbackWorkWrapper::ExecuteThreadpoolCallbackWork(ICallbackData* pCallbackData, ERROR_CODE& errorCode)
 {
 	if (NULL == _pThreadpoolCallbackWork)
 	{
@@ -40,7 +40,42 @@ BOOL CThreadpoolCallbackWorkWrapper::ExecuteThreadpoolCallbackWorkWrapper(ICallb
 	return _pThreadpoolCallbackWork->ExecuteThreadpoolCallbackWork(pCallbackData, errorCode);
 }
 
-//THREADPOOLENGINE_API CThreadpoolCallbackIo* CreateThreadpoolCallbackIo(HANDLE hDevice, THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter)
-//{
-//	return new CThreadpoolCallbackIo(hDevice, threadpoolGroupParameter);
-//}
+CThreadpoolCallbackIoWrapper::CThreadpoolCallbackIoWrapper(HANDLE hDevice, THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode)
+{
+	_pThreadpoolCallbackIo = new CThreadpoolCallbackIo(hDevice, threadpoolGroupParameter, errorCode);
+}
+
+CThreadpoolCallbackIoWrapper::~CThreadpoolCallbackIoWrapper()
+{
+	if (NULL != _pThreadpoolCallbackIo)
+	{
+		delete _pThreadpoolCallbackIo;
+	}
+}
+
+BOOL CThreadpoolCallbackIoWrapper::ExecuteThreadpoolCallbackIo(ERROR_CODE& errorCode)
+{
+	if (NULL == _pThreadpoolCallbackIo)
+	{
+		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_IO_CREATE_CALLBACK_OBJECT_FAILURE;
+		return FALSE;
+	}
+
+	return _pThreadpoolCallbackIo->ExecuteThreadpoolCallbackIo(errorCode);
+}
+
+BOOL CThreadpoolCallbackIoWrapper::SetCallbackData(ICallbackData* pCallbackData, ERROR_CODE& errorCode)
+{
+	if (NULL == _pThreadpoolCallbackIo)
+	{
+		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_IO_CREATE_CALLBACK_OBJECT_FAILURE;
+		return FALSE;
+	}
+
+	return _pThreadpoolCallbackIo->SetCallbackData(pCallbackData, errorCode);
+}
+
+BOOL CThreadpoolCallbackIoWrapper::CancelThreadpoolCallbackIo(BOOL bCancelPendingCallbacks, ERROR_CODE& errorCode)
+{
+	return _pThreadpoolCallbackIo->CancelThreadpoolCallbackIo(bCancelPendingCallbacks, errorCode);
+}

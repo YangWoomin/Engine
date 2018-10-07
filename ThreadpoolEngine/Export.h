@@ -8,104 +8,113 @@
 #endif
 
 // 프로젝트 내부에서 사용하는 공용/전용 에러 코드
-// 프로젝트 내부에서 정의한 에러 코드는 음수만 사용하며 양수는 DWORD GetLastError 코드로 사용
+// 프로젝트 내부에서 정의한 에러 코드는 INT_MIN 미만의 음수만 사용
+// 양수는 DWORD GetLastError, int WSAGetLastError,  LONG NTSTATUS 코드로 사용
 enum ERROR_CODE : __int64
 {
 	// 에러 아님 (정상)
 	ERROR_CODE_NONE
 	= 0,
 
+	// 프로젝트 내부의 에러 코드 기준값
+	ERROR_CODE_BASE
+	= INT_MIN, // -2147483647 - 1
+
 	// 공용 에러 //
 	// 이미 존재
 	ERROR_CODE_ALREADY_EXISTS
-	= -1,
+	= ERROR_CODE_BASE - 1,
 
 	// 존재하지 않음
 	ERROR_CODE_DOES_NOT_EXIST
-	= -2,
+	= ERROR_CODE_BASE - 2,
 
 	// 유효하지 않은 접근
 	ERROR_CODE_INVALID_ACCESS
-	= -3,
+	= ERROR_CODE_BASE - 3,
 
 	// CThreadpoolCallbackWork 전용 에러 코드 //
 	// 콜백 객체는 이미 바인딩 되었음
 	ERROR_CODE_THREADPOOL_CALLBACK_WORK_ALREADY_BOUND
-	= -101,
+	= ERROR_CODE_BASE - 101,
 
 	// 콜백 객체의 콜백 함수가 실행중
 	ERROR_CODE_THREADPOOL_CALLBACK_WORK_CALLBACK_FUNCTION_RUNNING
-	= -102,
+	= ERROR_CODE_BASE - 102,
 
 	// 콜백 객체의 콜백 함수로 넘겨질 콜백 데이터가 세팅되지 않음
 	ERROR_CODE_THREADPOOL_CALLBACK_WORK_CALLBACK_DATA_NOT_SET
-	= -103,
+	= ERROR_CODE_BASE - 103,
 
 	// 콜백 객체가 바인딩된 적이 없음
 	ERROR_CODE_THREADPOOL_CALLBACK_WORK_NOT_BOUND
-	= -104,
+	= ERROR_CODE_BASE - 104,
 
 	// 콜백 객체가 NULL인 상태
 	ERROR_CODE_THREADPOOL_CALLBACK_WORK_PTP_WORK_IS_NULL
-	= -105,
+	= ERROR_CODE_BASE - 105,
 
 	// 콜백 함수가 호출되기 전에 콜백 객체가 해제됨
 	ERROR_CODE_THREADPOOL_CALLBACK_WORK_RELEASE_CALLBACK_OBJECT
-	= -106,
+	= ERROR_CODE_BASE - 106,
 
 	// 콜백 객체 생성에 실패함
 	ERROR_CODE_THREADPOOL_CALLBACK_WORK_CREATE_CALLBACK_OBJECT_FAILURE
-	= -107,
+	= ERROR_CODE_BASE - 107,
 
 	// CThreadpoolCallbackIo 전용 에러 코드 //
 	// 콜백 객체는 이미 바인딩 되었음
 	ERROR_CODE_THREADPOOL_CALLBACK_IO_ALREADY_BOUND
-	= -401,
+	= ERROR_CODE_BASE - 401,
 
 	// 콜백 객체의 콜백 함수가 실행중
 	ERROR_CODE_THREADPOOL_CALLBACK_IO_CALLBACK_FUNCTION_RUNNING
-	= -402,
+	= ERROR_CODE_BASE - 402,
 
 	// 콜백 객체의 콜백 함수로 넘겨질 콜백 데이터가 세팅되지 않음
 	ERROR_CODE_THREADPOOL_CALLBACK_IO_CALLBACK_DATA_NOT_SET
-	= -403,
+	= ERROR_CODE_BASE - 403,
 
 	// 콜백 객체가 바인딩된 적이 없음
 	ERROR_CODE_THREADPOOL_CALLBACK_IO_NOT_BOUND
-	= -404,
+	= ERROR_CODE_BASE - 404,
 
 	// 콜백 객체가 NULL인 상태
 	ERROR_CODE_THREADPOOL_CALLBACK_IO_PTP_IO_IS_NULL
-	= -405,
+	= ERROR_CODE_BASE - 405,
+
+	// 콜백 객체 생성에 실패함
+	ERROR_CODE_THREADPOOL_CALLBACK_IO_CREATE_CALLBACK_OBJECT_FAILURE
+	= ERROR_CODE_BASE - 407,
 
 	// IOCP와 바인딩할 장치가 유효하지 않음
 	ERROR_CODE_THREADPOOL_CALLBACK_IO_INVALID_DEVICE
-	= -410,
+	= ERROR_CODE_BASE - 410,
 
 	// 콜백 데이터가 이미 세팅되었음
 	ERROR_CODE_THREADPOOL_CALLBACK_IO_CALLBACK_DATA_ALREADY_SET
-	= -411,
+	= ERROR_CODE_BASE - 411,
 
 	// 스레드풀 전용 에러 코드 //
 	// 디폴트 스레드풀이 아닌 스레드풀의 최소 스레드 개수(THREADPOOL_THREAD_MIN_COUNT)가 유효하지 않음
 	ERROR_CODE_THREADPOOL_INVALID_THREAD_MIN_COUNT
-	= -1001,
+	= ERROR_CODE_BASE - 1001,
 
 	// 디폴트 스레드풀이 아닌 스레드풀의 최대 스레드 개수(THREADPOOL_THREAD_MAX_COUNT)가 유효하지 않음
 	ERROR_CODE_THREADPOOL_INVALID_THREAD_MAX_COUNT
-	= -1002,
+	= ERROR_CODE_BASE - 1002,
 
 	// 디폴트 스레드풀은 명시적으로 제거할 수 없음
 	ERROR_CODE_THREADPOOL_CANNOT_DESTROY_DEFAULT_THREADPOOL_EXPLICITLY
-	= -1003,
+	= ERROR_CODE_BASE - 1003,
 
 	// 특정 그룹의 스레드풀이 이미 존재함 (에러로 안쓰일 수 있음)
 	ERROR_CODE_THREADPOOL_THREADPOOL_GROUP_ALREADY_EXISTS
-	= -1004,
+	= ERROR_CODE_BASE - 1004,
 
 	// 콜백 객체가 특정 그룹의 스레드풀에 이미 존재함
 	ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_ALREADY_EXISTS_IN_THREADPOOL_GROUP
-	= -1005,
+	= ERROR_CODE_BASE - 1005,
 };
 
 struct CALLBACK_DATA_PARAMETER
@@ -179,10 +188,28 @@ public:
 
 	~CThreadpoolCallbackWorkWrapper();
 
-	BOOL ExecuteThreadpoolCallbackWorkWrapper(ICallbackData* pCallbackData, ERROR_CODE& errorCode);
+	BOOL ExecuteThreadpoolCallbackWork(ICallbackData* pCallbackData, ERROR_CODE& errorCode);
 };
 
 class CThreadpoolCallbackIo;
+// Io 콜백 객체 래핑 클래스
+class THREADPOOLENGINE_API CThreadpoolCallbackIoWrapper
+{
+protected:
+	CThreadpoolCallbackIo* _pThreadpoolCallbackIo;
+
+public:
+	CThreadpoolCallbackIoWrapper(HANDLE hDevice, THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode);
+
+	~CThreadpoolCallbackIoWrapper();
+
+	BOOL ExecuteThreadpoolCallbackIo(ERROR_CODE& errorCode);
+
+	BOOL SetCallbackData(ICallbackData* pCallbackData, ERROR_CODE& errorCode);
+
+	BOOL CancelThreadpoolCallbackIo(BOOL bCancelPendingCallbacks, ERROR_CODE& errorCode);
+};
+
 
 template <class C>
 class THREADPOOLENGINE_API CThreadpoolCallbackWrapper

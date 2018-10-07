@@ -23,7 +23,7 @@ public:
 	BOOL SetCallbackData(ICallbackData* pCallbackData, ERROR_CODE& errorCode);
 
 	// 콜백 객체의 중첩 입출력 개시
-	BOOL ExecuteThreadpoolCallbackIo(ICallbackData* pCallbackData, ERROR_CODE& errorCode);
+	BOOL ExecuteThreadpoolCallbackIo(ERROR_CODE& errorCode);
 
 	// 콜백 객체에 대해 호출될 콜백 함수
 	static VOID CALLBACK ThreadpoolCallbackIoCallbackFunction(PTP_CALLBACK_INSTANCE pInstance, PVOID pParam, PVOID pOverlapped, ULONG ulIoResult, ULONG_PTR ulpNumberOfBytesTransferred, PTP_IO pTpIo);
@@ -31,5 +31,5 @@ public:
 	ICallbackData* GetCallbackData();
 
 	// 바인딩된 장치의 중첩 입출력을 취소
-	BOOL CancelThreadpoolCallbackIo(ERROR_CODE& errorCode);
+	BOOL CancelThreadpoolCallbackIo(BOOL bCancelPendingCallbacks, ERROR_CODE& errorCode);
 };
