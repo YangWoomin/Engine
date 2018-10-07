@@ -22,7 +22,7 @@ public:
 	// 콜백 데이터 세팅
 	BOOL SetCallbackData(ICallbackData* pCallbackData, ERROR_CODE& errorCode);
 
-	// 콜백 객체의 중첩 입출력 개시
+	// 콜백 객체와 바인딩된 장치의 중첩 입출력 개시될 것을 통지
 	BOOL ExecuteThreadpoolCallbackIo(ERROR_CODE& errorCode);
 
 	// 콜백 객체에 대해 호출될 콜백 함수

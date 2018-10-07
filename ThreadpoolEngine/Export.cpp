@@ -6,16 +6,6 @@
 #include "ThreadpoolCallbackWork.h"
 #include "ThreadpoolCallbackIo.h"
 
-//THREADPOOLENGINE_API CThreadpoolCallbackWork* CreateThreadpoolCallbackWork(THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter)
-//{
-//	return new CThreadpoolCallbackWork(threadpoolGroupParameter);
-//}
-//
-//THREADPOOLENGINE_API BOOL ExecuteThreadpoolCallbackWork(CThreadpoolCallbackWork* pThreadpoolCallbackWork, ICallbackData* pCallbackData, ERROR_CODE& errorCode)
-//{
-//	return pThreadpoolCallbackWork->ExecuteThreadpoolCallbackWork(errorCode, pCallbackData);
-//}
-
 CThreadpoolCallbackWorkWrapper::CThreadpoolCallbackWorkWrapper(THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode)
 {
 	_pThreadpoolCallbackWork = new CThreadpoolCallbackWork(threadpoolGroupParameter, errorCode);

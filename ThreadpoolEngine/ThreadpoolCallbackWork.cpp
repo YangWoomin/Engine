@@ -15,12 +15,12 @@ CThreadpoolCallbackWork::CThreadpoolCallbackWork(THREADPOOL_GROUP_PARAMETER thre
 	::InitializeCriticalSection(&_criticalSection);
 
 	// 특정 그룹의 스레드풀 생성, 없으면 생성하고 있으면 그냥 쓰면 됨
-	// _errorCode = ERROR_CODE_NONE;
 	GetThreadpoolManager()->CreateThreadpool(threadpoolGroupParameter._dwThreadpoolGroup, threadpoolGroupParameter._iMinThreadCount, threadpoolGroupParameter._iMaxThreadCount, errorCode);
 
 	// 스레드풀 특정 그룹에 콜백 객체를 추가
 	if (ERROR_CODE_THREADPOOL_THREADPOOL_GROUP_ALREADY_EXISTS == errorCode || ERROR_CODE_NONE == errorCode)
 	{
+		// 스레드풀 그룹 매니저에 의해 BindThreadpoolCallbackObject 호출됨
 		errorCode = ERROR_CODE_NONE;
 		_bIsGrouping = GetThreadpoolManager()->InsertThreadpoolCallbackObject(threadpoolGroupParameter._dwThreadpoolGroup, this, errorCode);
 	}
@@ -28,20 +28,17 @@ CThreadpoolCallbackWork::CThreadpoolCallbackWork(THREADPOOL_GROUP_PARAMETER thre
 
 CThreadpoolCallbackWork::~CThreadpoolCallbackWork()
 {
-	// 부모 소멸자에서 ThreadpoolGroupManager을 통해 호출됨
-	// ERROR_CODE errorCode = ERROR_CODE_NONE;
-	// ReleaseThreadpoolCallbackObject(errorCode, TRUE);
-
 	// 특정 그룹의 스레드풀에 추가되었다면 제거
 	if (TRUE == _bIsGrouping)
 	{
+		// 스레드풀 그룹 매니저에 의해 ReleaseThreadpoolCallbackObject 호출됨
 		ERROR_CODE errorCode = ERROR_CODE_NONE;
 		GetThreadpoolManager()->DeleteThreadpoolCallbackObject(this, FALSE, errorCode);
 		_bIsGrouping = FALSE;
 	}
 
 	// 생성했던 스레드 풀은 여기서 제거하지 않도록 함
-	// 프로그램 종료할 때 일괄적으로 자동 제거
+	// 스레드풀 그룹 매니저가 프로그램 종료할 때 일괄적으로 자동 제거
 
 	::DeleteCriticalSection(&_criticalSection);
 }
@@ -106,6 +103,7 @@ BOOL CThreadpoolCallbackWork::ExecuteThreadpoolCallbackWork(ICallbackData* pCall
 		return FALSE;
 	}
 
+	// 아래 코드는 혹시나 쓸 일이 있을까봐 우선 남겨 놓도록 함
 	/*
 	// 콜백 객체의 콜백 함수 호출 개시 횟수가 최대치에 도달하면 에러 처리
 	if (_MAXIMUM_CALLBACK_RUNNING_COUNT <= GetCallbackRunningCount())
@@ -162,6 +160,7 @@ VOID CThreadpoolCallbackWork::ThreadpoolCallbackWorkCallbackFunction(PTP_CALLBAC
 	}
 }
 
+// 아래 코드는 혹시나 쓸 일이 있을까봐 우선 남겨 놓도록 함
 /*
 BOOL CThreadpoolCallbackWork::SetCallbackData(ICallbackData* pCallbackData, BOOL bWaitForPreviousCallback, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode)
 {

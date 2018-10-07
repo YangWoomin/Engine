@@ -4,7 +4,6 @@
 #include "ThreadpoolCallbackObject.h"
 //#include "CallbackData.h"
 #include "ThreadpoolGroupManager.h" //
-//#include "ThreadpoolCallbackWork.h" //
 #include "ThreadpoolCallbackIo.h"
 
 using namespace ThreadpoolGroupManager;
@@ -16,12 +15,12 @@ CThreadpoolCallbackIo::CThreadpoolCallbackIo(HANDLE hDevice, THREADPOOL_GROUP_PA
 	_pCallbackData = NULL;
 
 	// 특정 그룹의 스레드풀 생성, 없으면 생성하고 있으면 그냥 쓰면 됨
-	// _errorCode = ERROR_CODE_NONE;
 	GetThreadpoolManager()->CreateThreadpool(threadpoolGroupParameter._dwThreadpoolGroup, threadpoolGroupParameter._iMinThreadCount, threadpoolGroupParameter._iMaxThreadCount, errorCode);
 
 	// 스레드풀 특정 그룹에 콜백 객체를 추가
 	if (ERROR_CODE_THREADPOOL_THREADPOOL_GROUP_ALREADY_EXISTS == errorCode || ERROR_CODE_NONE == errorCode)
 	{
+		// 스레드풀 그룹 매니저에 의해 BindThreadpoolCallbackObject 호출됨
 		errorCode = ERROR_CODE_NONE;
 		_bIsGrouping = GetThreadpoolManager()->InsertThreadpoolCallbackObject(threadpoolGroupParameter._dwThreadpoolGroup, this, errorCode);
 	}
@@ -32,10 +31,14 @@ CThreadpoolCallbackIo::~CThreadpoolCallbackIo()
 	// 특정 그룹의 스레드풀에 추가되었다면 제거
 	if (TRUE == _bIsGrouping)
 	{
+		// 스레드풀 그룹 매니저에 의해 ReleaseThreadpoolCallbackObject 호출됨
 		ERROR_CODE errorCode = ERROR_CODE_NONE;
 		GetThreadpoolManager()->DeleteThreadpoolCallbackObject(this, FALSE, errorCode);
 		_bIsGrouping = FALSE;
 	}
+
+	// 생성했던 스레드 풀은 여기서 제거하지 않도록 함
+	// 스레드풀 그룹 매니저가 프로그램 종료할 때 일괄적으로 자동 제거
 }
 
 BOOL CThreadpoolCallbackIo::BindThreadpoolCallbackObject(const PTP_CALLBACK_ENVIRON pTpCallbackEnviron, ERROR_CODE& errorCode)
@@ -105,35 +108,6 @@ BOOL CThreadpoolCallbackIo::SetCallbackData(ICallbackData* pCallbackData, ERROR_
 		return FALSE;
 	}
 
-	/*
-	// 현재 콜백 함수 호출 개시된 횟수가 0보다 크다면
-	if (0 < GetCallbackRunningCount())
-	{
-		// 기다리지 않는다면 에러 처리
-		if (FALSE == bWaitForPreviousCallback)
-		{
-			errorCode = ERROR_CODE_THREADPOOL_CALLBACK_IO_CALLBACK_FUNCTION_RUNNING;
-			return FALSE;
-		}
-
-		// 이전 콜백 함수의 작업을 모두 취소한다면
-		if (TRUE == fCancelPendingCallbacks)
-		{
-			
-		}
-
-		// 이전 콜백 함수 호출이 완료될 때까지 대기
-		::WaitForThreadpoolWorkCallbacks(_pThreadpoolCallbackObject, fCancelPendingCallbacks);
-
-		// 이전 콜백 함수의 작업을 모두 취소한다면
-		if (TRUE == fCancelPendingCallbacks)
-		{
-			// 콜백 함수 호출 개시 횟수도 0으로 초기화
-			ResetCallbackRunningCount();
-		}
-	}
-	*/
-
 	// 콜백 데이터 변경
 	_pCallbackData = pCallbackData;
 
@@ -149,13 +123,6 @@ BOOL CThreadpoolCallbackIo::ExecuteThreadpoolCallbackIo(ERROR_CODE& errorCode)
 		return FALSE;
 	}
 
-	//// 장치가 세팅되어 있어야 함
-	//if (NULL == _hDevice || INVALID_HANDLE_VALUE == _hDevice)
-	//{
-	//	errorCode = ERROR_CODE_THREADPOOL_CALLBACK_IO_INVALID_DEVICE;
-	//	return FALSE;
-	//}
-
 	// 콜백 데이터가 세팅되어 있어야 함
 	if (NULL == _pCallbackData)
 	{
@@ -163,10 +130,11 @@ BOOL CThreadpoolCallbackIo::ExecuteThreadpoolCallbackIo(ERROR_CODE& errorCode)
 		return FALSE;
 	}
 
-	// 중첩 입출력 개시
+	// 콜백 객체와 바인딩된 장치의 중첩 입출력 개시될 것을 통지
 	::StartThreadpoolIo(_pThreadpoolCallbackObject);
 
 	// 중첩 입출력 개시 결과 이상 여부 확인
+	// STATUS_PENDING(ERROR_IO_PENDING)이 리턴될 수 있음
 	errorCode = (ERROR_CODE)::GetLastError();
 	if (ERROR_CODE_NONE != errorCode)
 	{
@@ -182,11 +150,10 @@ VOID CThreadpoolCallbackIo::ThreadpoolCallbackIoCallbackFunction(PTP_CALLBACK_IN
 
 	// pThreadpoolCallbackIo의 유효성 검사할 방법이 딱히 없음, 외부에서 관리를 잘 해주는 수 밖에
 	ICallbackData* pCallbackData = pThreadpoolCallbackIo->GetCallbackData();
+
 	// 콜백 데이터가 NULL이면 아무것도 못함
 	if (NULL == pCallbackData)
 	{
-		//// 콜백 함수의 호출 개시 횟수를 감소
-		//pThreadpoolCallbackIo->DecreaseCallbackRunningCount();
 		return;
 	}
 
@@ -205,9 +172,6 @@ VOID CThreadpoolCallbackIo::ThreadpoolCallbackIoCallbackFunction(PTP_CALLBACK_IN
 	{
 		delete pCallbackData;
 	}
-
-	//// 콜백 함수의 호출 개시 횟수를 감소
-	//pThreadpoolCallbackIo->DecreaseCallbackRunningCount();
 }
 
 ICallbackData* CThreadpoolCallbackIo::GetCallbackData()
@@ -238,6 +202,8 @@ BOOL CThreadpoolCallbackIo::CancelThreadpoolCallbackIo(BOOL bCancelPendingCallba
 		errorCode = (ERROR_CODE)::GetLastError();
 	}
 
+	// 위의 장치에 대한 입출력 취소가 실패하더라도 IO 작업을 취소해야 하므로..
+	// 아니면 바인딩된 장치의 입출력 개시가 되지 않았더라도 크게 문제될 것은 없으므로 호출함
 	::WaitForThreadpoolIoCallbacks(_pThreadpoolCallbackObject, bCancelPendingCallbacks);
 	errorCode = (ERROR_CODE)::GetLastError();
 	if (ERROR_CODE_NONE != errorCode)

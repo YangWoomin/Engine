@@ -157,10 +157,10 @@ interface ICallbackData
 
 #define DEFAULT_THREAD_POOL 0
 typedef DWORD ThreadpoolGroup; // DEFAULT_THREAD_POOL이 아닌 0보다 큰 값
-#define THREADPOOL_THREAD_MIN_COUNT 1 // 디폴트 스레드풀이 아닌 스레드풀의 최수 스레드 개수
-#define THREADPOOL_THREAD_MAX_COUNT 500 // 디폴트 스레드풀이 아닌 스레드풀의 최대 스레드 개수
+#define THREADPOOL_THREAD_MIN_COUNT 1 // 디폴트 스레드풀이 아닌 스레드풀의 스레드 최소 개수
+#define THREADPOOL_THREAD_MAX_COUNT 500 // 디폴트 스레드풀이 아닌 스레드풀의 스레드 최대 개수
 
-// CreateThreadpool 매개 변수 묶음 구조체
+// 스레드풀 그루핑 관련한 매개 변수 묶음 구조체
 struct THREADPOOL_GROUP_PARAMETER
 {
 	ThreadpoolGroup				_dwThreadpoolGroup;
@@ -184,10 +184,12 @@ protected:
 	CThreadpoolCallbackWork* _pThreadpoolCallbackWork;
 
 public:
+	// 해당 객체를 생성하고 나서 꼭 ERROR_CODE를 확인할 것
 	CThreadpoolCallbackWorkWrapper(THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode);
 
 	~CThreadpoolCallbackWorkWrapper();
 
+	// 콜백 데이터 기반의 콜백 함수 호출(비동기) 개시 (작업이 밀려있지 않는 이상 거의 바로 시작됨)
 	BOOL ExecuteThreadpoolCallbackWork(ICallbackData* pCallbackData, ERROR_CODE& errorCode);
 };
 
@@ -196,28 +198,34 @@ class CThreadpoolCallbackIo;
 class THREADPOOLENGINE_API CThreadpoolCallbackIoWrapper
 {
 protected:
+	// Io 콜백 객체
 	CThreadpoolCallbackIo* _pThreadpoolCallbackIo;
 
 public:
+	// 해당 객체를 생성하고 나서 꼭 ERROR_CODE를 확인할 것
 	CThreadpoolCallbackIoWrapper(HANDLE hDevice, THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode);
 
 	~CThreadpoolCallbackIoWrapper();
 
+	// 바인딩된 해당 장치의 비동기 입출력 완료 시 콜백 데이터 기반의 콜백 함수가 호출되도록 개시
+	// 반드시 비동기 입출력 함수(ex WSARecv)를 호출하기 전에 이 함수를 먼저 호출해야 함
 	BOOL ExecuteThreadpoolCallbackIo(ERROR_CODE& errorCode);
 
+	// 최초 1회만 콜백 데이터를 세팅할 수 있음
+	// 콜백 데이터 변경 가능 여부 또는 하나의 장치에 다수의 콜백 데이터 세팅 가능 여부는 차후 필요에 따라 구현 결정
 	BOOL SetCallbackData(ICallbackData* pCallbackData, ERROR_CODE& errorCode);
 
+	// 비동기 입출력을 취소하고 실행 및 실행 대기 중인 콜백 함수 실행 완료를 대기
+	// bCancelPendingCallbacks는 콜백 작업 큐에 있는 작업(비동기 입출력 완료로 인한 콜백 함수 호출)을 취소할 지 여부
 	BOOL CancelThreadpoolCallbackIo(BOOL bCancelPendingCallbacks, ERROR_CODE& errorCode);
 };
 
 
+// 래핑 클래스들을 하나로 묶을 지 고민중..
 template <class C>
 class THREADPOOLENGINE_API CThreadpoolCallbackWrapper
 {
 protected:
 	C* _pThreadpoolCallbackObject;
 };
-
-
-// THREADPOOLENGINE_API CThreadpoolCallbackIo* CreateThreadpoolCallbackIo(HANDLE hDevice, THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter);
 

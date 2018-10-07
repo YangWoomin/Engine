@@ -28,12 +28,6 @@ protected:
 	// 스레드풀 그룹에 정상적으로 추가되었는지 여부
 	BOOL _bIsGrouping;
 
-	// 스레드풀 그룹에 정상적으로 추가되지 못했다면 그 원인의 에러 코드
-	// ERROR_CODE _errorCode;
-
-	// 콜백 객체의 콜백 함수에 매개 변수로 전달될 데이터, 다시 호출될 콜백 함수가 포함되어 있음
-	// ICallbackData* _pCallbackData;
-
 	// 콜백 객체에 대한 콜백 함수 호출 개시 횟수
 	// USHORT _usCallbackRunningCount;
 
@@ -50,17 +44,7 @@ public:
 		return _pThreadpoolCallbackObject;
 	}
 
-	/*ERROR_CODE GetErrorCode()
-	{
-		return _errorCode;
-	}*/
-
 	/*
-	ICallbackData* GetCallbackData()
-	{
-		return _pCallbackData;
-	}
-
 	// 콜백 함수 호출 개시 횟수 추출
 	ULONG GetCallbackRunningCount()
 	{

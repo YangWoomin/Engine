@@ -31,10 +31,8 @@ public:
 	// 콜백 객체가 특정 스레드 풀에서 제거될 때 호출됨
 	virtual BOOL ReleaseThreadpoolCallbackObject(BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode);
 
-	// 콜백 데이터 세팅
-	// virtual BOOL SetCallbackData(ICallbackData* pCallbackData, BOOL bWaitForPreviousCallback, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode);
-
 	// 콜백 객체의 콜백 함수 비동기 호출 개시
+	// 콜백 데이터가 큐에 쌓여서 순차적으로 호출되는 구조
 	BOOL ExecuteThreadpoolCallbackWork(ICallbackData* pCallbackData, ERROR_CODE& errorCode);
 
 	// 콜백 객체에 대해 호출될 콜백 함수

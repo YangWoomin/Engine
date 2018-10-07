@@ -4,7 +4,6 @@
 #include "ThreadpoolCallbackObject.h"
 //#include "CallbackData.h"
 #include "ThreadpoolGroupManager.h"
-#include "ThreadpoolCallbackWork.h" // 
 
 using namespace ThreadpoolGroupManager;
 
