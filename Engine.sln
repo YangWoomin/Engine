@@ -5,6 +5,13 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ThreadpoolEngine", "ThreadpoolEngine\ThreadpoolEngine.vcxproj", "{D288B7FC-DB3B-4963-B6D7-BD143948632A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EchoServer(EngineTest)", "EchoServer(EngineTest)\EchoServer(EngineTest).vcxproj", "{A623F591-DC0D-4129-800F-FFF00EDEA967}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D288B7FC-DB3B-4963-B6D7-BD143948632A} = {D288B7FC-DB3B-4963-B6D7-BD143948632A}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EchoClient(EngineTest)", "EchoClient(EngineTest)\EchoClient(EngineTest).vcxproj", "{2348E89B-1119-4F8F-A60D-82234E8D486A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +28,22 @@ Global
 		{D288B7FC-DB3B-4963-B6D7-BD143948632A}.Release|x64.Build.0 = Release|x64
 		{D288B7FC-DB3B-4963-B6D7-BD143948632A}.Release|x86.ActiveCfg = Release|Win32
 		{D288B7FC-DB3B-4963-B6D7-BD143948632A}.Release|x86.Build.0 = Release|Win32
+		{A623F591-DC0D-4129-800F-FFF00EDEA967}.Debug|x64.ActiveCfg = Debug|x64
+		{A623F591-DC0D-4129-800F-FFF00EDEA967}.Debug|x64.Build.0 = Debug|x64
+		{A623F591-DC0D-4129-800F-FFF00EDEA967}.Debug|x86.ActiveCfg = Debug|Win32
+		{A623F591-DC0D-4129-800F-FFF00EDEA967}.Debug|x86.Build.0 = Debug|Win32
+		{A623F591-DC0D-4129-800F-FFF00EDEA967}.Release|x64.ActiveCfg = Release|x64
+		{A623F591-DC0D-4129-800F-FFF00EDEA967}.Release|x64.Build.0 = Release|x64
+		{A623F591-DC0D-4129-800F-FFF00EDEA967}.Release|x86.ActiveCfg = Release|Win32
+		{A623F591-DC0D-4129-800F-FFF00EDEA967}.Release|x86.Build.0 = Release|Win32
+		{2348E89B-1119-4F8F-A60D-82234E8D486A}.Debug|x64.ActiveCfg = Debug|x64
+		{2348E89B-1119-4F8F-A60D-82234E8D486A}.Debug|x64.Build.0 = Debug|x64
+		{2348E89B-1119-4F8F-A60D-82234E8D486A}.Debug|x86.ActiveCfg = Debug|Win32
+		{2348E89B-1119-4F8F-A60D-82234E8D486A}.Debug|x86.Build.0 = Debug|Win32
+		{2348E89B-1119-4F8F-A60D-82234E8D486A}.Release|x64.ActiveCfg = Release|x64
+		{2348E89B-1119-4F8F-A60D-82234E8D486A}.Release|x64.Build.0 = Release|x64
+		{2348E89B-1119-4F8F-A60D-82234E8D486A}.Release|x86.ActiveCfg = Release|Win32
+		{2348E89B-1119-4F8F-A60D-82234E8D486A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
