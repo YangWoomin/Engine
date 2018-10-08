@@ -7,6 +7,7 @@
 //#include "ThreadpoolGroupManager.h" //
 #include "ThreadpoolCallbackIo.h"
 
+using namespace ThreadpoolEngine;
 using namespace ThreadpoolGroupManager;
 
 CThreadpoolCallbackIo::CThreadpoolCallbackIo(HANDLE hDevice)

@@ -6,6 +6,7 @@
 //#include "CallbackData.h"
 //#include "ThreadpoolGroupManager.h"
 
+using namespace ThreadpoolEngine;
 using namespace ThreadpoolGroupManager;
 
 CThreadpoolGroupManager* CThreadpoolGroupManager::_pInstance = NULL;

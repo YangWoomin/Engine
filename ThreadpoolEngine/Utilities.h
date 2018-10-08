@@ -1,10 +1,13 @@
 #pragma once
 
-class CLock
+namespace ThreadpoolEngine
 {
-private:
-	CRITICAL_SECTION* _pCriticalSection;
-public:
-	CLock(CRITICAL_SECTION& criticalSection);
-	~CLock();
-};
+	class CLock
+	{
+	private:
+		CRITICAL_SECTION* _pCriticalSection;
+	public:
+		CLock(CRITICAL_SECTION& criticalSection);
+		~CLock();
+	};
+}

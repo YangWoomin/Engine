@@ -8,9 +8,8 @@
 #include "CallbackDataForChildSocket.h"
 #include "CallbackDataForListenSocket.h"
 
-using namespace std;
+using namespace ThreadpoolEngine;
 
-#define COUT std::cout
 
 PVOID GetSockExtAPI(SOCKET sock, GUID guidFn)
 {

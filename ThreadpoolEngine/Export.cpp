@@ -7,6 +7,8 @@
 #include "ThreadpoolCallbackWork.h"
 #include "ThreadpoolCallbackIo.h"
 
+using namespace ThreadpoolEngine;
+
 CThreadpoolCallbackWorkWrapper::CThreadpoolCallbackWorkWrapper(THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode)
 {
 	_pThreadpoolCallbackWork = new CThreadpoolCallbackWork();

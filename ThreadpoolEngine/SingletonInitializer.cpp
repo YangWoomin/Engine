@@ -7,9 +7,10 @@
 //#include "ThreadpoolGroupManager.h" //
 #include "SingletonInitializer.h"
 
-static CSingletonInitializer singletonInitializer;
-
+using namespace ThreadpoolEngine;
 using namespace ThreadpoolGroupManager;
+
+static CSingletonInitializer singletonInitializer;
 
 CSingletonInitializer::CSingletonInitializer()
 {

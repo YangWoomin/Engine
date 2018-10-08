@@ -7,6 +7,7 @@
 //#include "ThreadpoolGroupManager.h" //
 #include "ThreadpoolCallbackWork.h"
 
+using namespace ThreadpoolEngine;
 using namespace ThreadpoolGroupManager;
 
 CThreadpoolCallbackWork::CThreadpoolCallbackWork()

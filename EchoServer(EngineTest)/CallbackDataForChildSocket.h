@@ -1,5 +1,7 @@
 #pragma once
 
+using namespace ThreadpoolEngine;
+
 class CCallbackDataForListenSocket;
 
 class CCallbackDataForChildSocket : public ICallbackData 

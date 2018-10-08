@@ -21,6 +21,7 @@
 #include "iostream"
 using namespace std;
 
+
 //enum IO_TYPE : BYTE
 //{
 //	IO_TYPE_NONE	= 0,
