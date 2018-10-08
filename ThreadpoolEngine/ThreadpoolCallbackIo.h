@@ -10,7 +10,7 @@ private:
 	ICallbackData* _pCallbackData;
 
 public:
-	CThreadpoolCallbackIo(HANDLE hDevice, THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode);
+	CThreadpoolCallbackIo(HANDLE hDevice);
 	~CThreadpoolCallbackIo();
 
 	// 콜백 객체가 특정 스레드풀과 바인딩될 때 호출됨

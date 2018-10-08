@@ -1,44 +1,45 @@
 #include "Common.h"
 #include "Export.h"
 #include "Utilities.h"
+#include "ThreadpoolGroupManager.h" //
 #include "ThreadpoolCallbackObject.h"
 //#include "CallbackData.h"
-#include "ThreadpoolGroupManager.h" //
+//#include "ThreadpoolGroupManager.h" //
 #include "ThreadpoolCallbackWork.h"
 
 using namespace ThreadpoolGroupManager;
 
-CThreadpoolCallbackWork::CThreadpoolCallbackWork(THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode)
+CThreadpoolCallbackWork::CThreadpoolCallbackWork()
 {
-	_pThreadpoolCallbackObject = NULL;
-
 	::InitializeCriticalSection(&_criticalSection);
+	
+	//_pThreadpoolCallbackObject = NULL;
 
-	// 특정 그룹의 스레드풀 생성, 없으면 생성하고 있으면 그냥 쓰면 됨
-	GetThreadpoolManager()->CreateThreadpool(threadpoolGroupParameter._dwThreadpoolGroup, threadpoolGroupParameter._iMinThreadCount, threadpoolGroupParameter._iMaxThreadCount, errorCode);
+	//// 특정 그룹의 스레드풀 생성, 없으면 생성하고 있으면 그냥 쓰면 됨
+	//ThreadpoolGroupManager()->CreateThreadpool(threadpoolGroupParameter._dwThreadpoolGroup, threadpoolGroupParameter._iMinThreadCount, threadpoolGroupParameter._iMaxThreadCount, errorCode);
 
-	// 스레드풀 특정 그룹에 콜백 객체를 추가
-	if (ERROR_CODE_THREADPOOL_THREADPOOL_GROUP_ALREADY_EXISTS == errorCode || ERROR_CODE_NONE == errorCode)
-	{
-		// 스레드풀 그룹 매니저에 의해 BindThreadpoolCallbackObject 호출됨
-		errorCode = ERROR_CODE_NONE;
-		_bIsGrouping = GetThreadpoolManager()->InsertThreadpoolCallbackObject(threadpoolGroupParameter._dwThreadpoolGroup, this, errorCode);
-	}
+	//// 스레드풀 특정 그룹에 콜백 객체를 추가
+	//if (ERROR_CODE_THREADPOOL_THREADPOOL_GROUP_ALREADY_EXISTS == errorCode || ERROR_CODE_NONE == errorCode)
+	//{
+	//	// 스레드풀 그룹 매니저에 의해 BindThreadpoolCallbackObject 호출됨
+	//	errorCode = ERROR_CODE_NONE;
+	//	_bIsGrouping = ThreadpoolGroupManager()->InsertThreadpoolCallbackObject(threadpoolGroupParameter._dwThreadpoolGroup, this, errorCode);
+	//}
 }
 
 CThreadpoolCallbackWork::~CThreadpoolCallbackWork()
 {
-	// 특정 그룹의 스레드풀에 추가되었다면 제거
-	if (TRUE == _bIsGrouping)
-	{
-		// 스레드풀 그룹 매니저에 의해 ReleaseThreadpoolCallbackObject 호출됨
-		ERROR_CODE errorCode = ERROR_CODE_NONE;
-		GetThreadpoolManager()->DeleteThreadpoolCallbackObject(this, FALSE, errorCode);
-		_bIsGrouping = FALSE;
-	}
+	//// 특정 그룹의 스레드풀에 추가되었다면 제거
+	//if (TRUE == _bIsGrouping)
+	//{
+	//	// 스레드풀 그룹 매니저에 의해 ReleaseThreadpoolCallbackObject 호출됨
+	//	ERROR_CODE errorCode = ERROR_CODE_NONE;
+	//	ThreadpoolGroupManager()->DeleteThreadpoolCallbackObject(this, FALSE, errorCode);
+	//	_bIsGrouping = FALSE;
+	//}
 
-	// 생성했던 스레드 풀은 여기서 제거하지 않도록 함
-	// 스레드풀 그룹 매니저가 프로그램 종료할 때 일괄적으로 자동 제거
+	//// 생성했던 스레드 풀은 여기서 제거하지 않도록 함
+	//// 스레드풀 그룹 매니저가 프로그램 종료할 때 일괄적으로 자동 제거
 
 	::DeleteCriticalSection(&_criticalSection);
 }

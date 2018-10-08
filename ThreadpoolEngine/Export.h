@@ -33,6 +33,10 @@ enum ERROR_CODE : __int64
 	ERROR_CODE_INVALID_ACCESS
 	= ERROR_CODE_BASE - 3,
 
+	// new 메모리 할당을 실패
+	ERROR_CODE_NEW_ALLOCATION_FAILED
+	= ERROR_CODE_BASE - 4,
+
 	// CThreadpoolCallbackWork 전용 에러 코드 //
 	// 콜백 객체는 이미 바인딩 되었음
 	ERROR_CODE_THREADPOOL_CALLBACK_WORK_ALREADY_BOUND

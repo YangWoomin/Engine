@@ -6,7 +6,7 @@ namespace ThreadpoolGroupManager
 {
 
 //#define DEFAULT_THREAD_POOL 0
-#define GetThreadpoolManager() CThreadpoolGroupManager::GetInstance()
+#define ThreadpoolGroupManager() CThreadpoolGroupManager::GetInstance()
 
 	//typedef DWORD ThreadpoolGroup; // DEFAULT_THREAD_POOL이 아닌 0보다 큰 값
 

@@ -22,7 +22,7 @@ private:
 	CRITICAL_SECTION _criticalSection;
 
 public:
-	CThreadpoolCallbackWork(THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode);
+	CThreadpoolCallbackWork();
 	virtual ~CThreadpoolCallbackWork();
 
 	// 콜백 객체가 특정 스레드풀과 바인딩될 때 호출됨

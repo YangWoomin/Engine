@@ -1,5 +1,7 @@
 #pragma once
 
+using namespace ThreadpoolGroupManager;
+
 // TP_WORK, TP_WAIT, TP_TIMER, TP_IO 4가지 콜백 객체의 추상 타입
 interface IThreadpoolCallbackObject
 {
@@ -42,6 +44,39 @@ public:
 	T GetThreadpoolCallbackObject()
 	{
 		return _pThreadpoolCallbackObject;
+	}
+
+	// 콜백 객체 생성자 호출 후에 이 함수를 호출해야 함
+	void Initialize(THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode)
+	{
+		_pThreadpoolCallbackObject = NULL;
+
+		// 특정 그룹의 스레드풀 생성, 없으면 생성하고 있으면 그냥 쓰면 됨
+		ThreadpoolGroupManager()->CreateThreadpool(threadpoolGroupParameter._dwThreadpoolGroup, threadpoolGroupParameter._iMinThreadCount, threadpoolGroupParameter._iMaxThreadCount, errorCode);
+
+		// 스레드풀 특정 그룹에 콜백 객체를 추가
+		if (ERROR_CODE_THREADPOOL_THREADPOOL_GROUP_ALREADY_EXISTS == errorCode || ERROR_CODE_NONE == errorCode)
+		{
+			// 스레드풀 그룹 매니저에 의해 BindThreadpoolCallbackObject 호출됨
+			errorCode = ERROR_CODE_NONE;
+			_bIsGrouping = ThreadpoolGroupManager()->InsertThreadpoolCallbackObject(threadpoolGroupParameter._dwThreadpoolGroup, this, errorCode);
+		}
+	}
+
+	// 콜백 객체의 소멸자 호출 전에 이 함수를 호출해야 함
+	void Finalize()
+	{
+		// 특정 그룹의 스레드풀에 추가되었다면 제거
+		if (TRUE == _bIsGrouping)
+		{
+			// 스레드풀 그룹 매니저에 의해 ReleaseThreadpoolCallbackObject 호출됨
+			ERROR_CODE errorCode = ERROR_CODE_NONE;
+			ThreadpoolGroupManager()->DeleteThreadpoolCallbackObject(this, FALSE, errorCode);
+			_bIsGrouping = FALSE;
+		}
+
+		// 생성했던 스레드 풀은 여기서 제거하지 않도록 함
+		// 스레드풀 그룹 매니저가 프로그램 종료할 때 일괄적으로 자동 제거
 	}
 
 	/*

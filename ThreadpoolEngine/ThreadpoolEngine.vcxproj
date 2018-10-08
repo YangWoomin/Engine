@@ -152,6 +152,7 @@
     <ClInclude Include="SingletonInitializer.h" />
     <ClInclude Include="ThreadpoolCallbackIo.h" />
     <ClInclude Include="ThreadpoolCallbackObject.h" />
+    <ClInclude Include="ThreadpoolCallbackWait.h" />
     <ClInclude Include="ThreadpoolGroupManager.h" />
     <ClInclude Include="ThreadpoolCallbackWork.h" />
     <ClInclude Include="Utilities.h" />
@@ -160,6 +161,7 @@
     <ClCompile Include="Export.cpp" />
     <ClCompile Include="SingletonInitializer.cpp" />
     <ClCompile Include="ThreadpoolCallbackIo.cpp" />
+    <ClCompile Include="ThreadpoolCallbackWait.cpp" />
     <ClCompile Include="ThreadpoolGroupManager.cpp" />
     <ClCompile Include="ThreadpoolCallbackWork.cpp" />
     <ClCompile Include="Utilities.cpp" />
