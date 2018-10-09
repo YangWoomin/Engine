@@ -2,13 +2,13 @@
 
 namespace ThreadpoolEngine
 {
-	typedef std::queue<ICallbackData*> CallbackDataQueue;
+	typedef std::queue<ICallbackData*> CallbackDataQueueInWork;
 
 	class CThreadpoolCallbackWork : public CThreadpoolCallbackObject<PTP_WORK>
 	{
 	private:
 		// 콜백 함수가 호출되고 작업할 콜백 데이터 큐
-		CallbackDataQueue _callbackDataQueue;
+		CallbackDataQueueInWork _callbackDataQueue;
 
 		// 콜백 데이터 큐를 보호하기 위한 크리티컬 섹션
 		CRITICAL_SECTION _criticalSection;
@@ -31,6 +31,6 @@ namespace ThreadpoolEngine
 		static VOID CALLBACK ThreadpoolCallbackWorkCallbackFunction(PTP_CALLBACK_INSTANCE pInstance, PVOID pParam, PTP_WORK pTpWork);
 
 		// 콜백 함수에서 작업할 콜백 데이터를 큐로부터 추출
-		ICallbackData* GetCallbackDataFromQueue();
+		ICallbackData* PopCallbackDataFromQueue();
 	};
 }

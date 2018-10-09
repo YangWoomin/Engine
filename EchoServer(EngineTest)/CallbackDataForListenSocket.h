@@ -13,6 +13,9 @@ private:
 
 	CRITICAL_SECTION _criticalSection;
 	std::set<CCallbackDataForChildSocket*> _callbackDataForChildSocketSet;
+	std::set<SOCK_ITEM*> _sockItemSet;
+
+	BYTE _byChildSockSN;
 
 public:
 	CCallbackDataForListenSocket(CThreadpoolCallbackIoWrapper* pThreadpoolCallbackIoWrapper, SOCKET listenSocket);

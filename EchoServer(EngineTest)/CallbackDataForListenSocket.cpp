@@ -9,6 +9,8 @@ CCallbackDataForListenSocket::CCallbackDataForListenSocket(CThreadpoolCallbackIo
 	_bDeleteThisObject = FALSE;
 	_listenSocket = listenSocket;
 	_callbackDataForChildSocketSet.clear();
+	_sockItemSet.clear();
+	_byChildSockSN = 0;
 	::InitializeCriticalSection(&_criticalSection);
 }
 
@@ -17,18 +19,24 @@ CCallbackDataForListenSocket::~CCallbackDataForListenSocket()
 	ERROR_CODE errorCode = ERROR_CODE_NONE;
 	CCallbackDataForChildSocket* pCallbackDataForChildSocket = NULL;
 	CThreadpoolCallbackIoWrapper* pThreadpoolCallbackIoWrapper = NULL;
-	std::set<CCallbackDataForChildSocket*>::iterator itCursor = _callbackDataForChildSocketSet.begin();
-	std::set<CCallbackDataForChildSocket*>::iterator itFinish = _callbackDataForChildSocketSet.end();
-	for (; itCursor != itFinish; ++itCursor)
+	std::set<CCallbackDataForChildSocket*>::iterator itCursorCallbackData = _callbackDataForChildSocketSet.begin();
+	std::set<CCallbackDataForChildSocket*>::iterator itFinishCallbackData = _callbackDataForChildSocketSet.end();
+	for (; itCursorCallbackData != itFinishCallbackData; ++itCursorCallbackData)
 	{
-		pCallbackDataForChildSocket = (*itCursor);
+		pCallbackDataForChildSocket = (*itCursorCallbackData);
 		pThreadpoolCallbackIoWrapper = pCallbackDataForChildSocket->GetThreadpoolCallbackIoWrapper();
-
-		// RECV 상태인 비동기 입출력에 대해서 취소 요청
-		pThreadpoolCallbackIoWrapper->CancelThreadpoolCallbackIo(FALSE, errorCode);
+		
+		// 소멸자 호출하면 자동으로 스레드풀에서 리소스 정리됨
 		delete pThreadpoolCallbackIoWrapper;
-		delete pCallbackDataForChildSocket->GetSockItem();
 		delete pCallbackDataForChildSocket;
+	}
+
+	std::set<SOCK_ITEM*>::iterator itCursorSockItem = _sockItemSet.begin();
+	std::set<SOCK_ITEM*>::iterator itFinishSockItem = _sockItemSet.end();
+	for (; itCursorSockItem != itFinishSockItem; ++itCursorSockItem)
+	{
+		::closesocket((*itCursorSockItem)->_sock);
+		delete (*itCursorSockItem);
 	}
 
 	::DeleteCriticalSection(&_criticalSection);
@@ -121,6 +129,11 @@ void CCallbackDataForListenSocket::CallbackFunction(CALLBACK_DATA_PARAMETER call
 			{
 				errorCode = (ERROR_CODE)pSockItem->Internal;
 				cout << "[SN : " << (int)bySN << "] [" << __FUNCTION__ << "] receiving data failed " << std::hex << errorCode << endl;
+				
+				// 입출력 실패하면 콜백 객체에 대한 콜백 함수 호출 개시도 취소해야 함
+				ERROR_CODE errorCodeTemp = ERROR_CODE_NONE;
+				pThreadpoolCallbackIoWrapper->CancelThreadpoolCallbackIo(errorCodeTemp);
+
 				throw (ERROR_CODE)errorCode;
 			}
 		}
@@ -245,14 +258,14 @@ BOOL CCallbackDataForListenSocket::DeleteCallbackDataAutomatically()
 
 BOOL CCallbackDataForListenSocket::SetChildSocketPool(SOCK_ITEM* pSockItemOld, BOOL bSetReuse, ERROR_CODE& errorCode)
 {
-	static BYTE bySN = 0;
+	BYTE bySN = 0;
 
 	SOCK_ITEM* pSockItem = pSockItemOld;
 
 	// pSockItem이 NULL이면 소켓풀 생성
 	if (NULL == pSockItem)
 	{
-		++bySN;
+		bySN = (++_byChildSockSN);
 
 		SOCKET childSocket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (INVALID_SOCKET == childSocket)
@@ -263,6 +276,7 @@ BOOL CCallbackDataForListenSocket::SetChildSocketPool(SOCK_ITEM* pSockItemOld, B
 		}
 
 		pSockItem = new SOCK_ITEM(bySN, childSocket);
+		_sockItemSet.insert(pSockItem);
 
 		cout << "[SN : " << (int)bySN << "] [" << __FUNCTION__ << "] created new socket" << endl;
 	}
@@ -305,6 +319,7 @@ BOOL CCallbackDataForListenSocket::SetChildSocketPool(SOCK_ITEM* pSockItemOld, B
 			if (NULL == pSockItemOld)
 			{
 				::closesocket(pSockItem->_sock);
+				_sockItemSet.erase(pSockItem);
 				delete pSockItem;
 			}
 
@@ -334,6 +349,7 @@ BOOL CCallbackDataForListenSocket::SetChildSocketPool(SOCK_ITEM* pSockItemOld, B
 			if (NULL == pSockItemOld)
 			{
 				::closesocket(pSockItem->_sock);
+				_sockItemSet.erase(pSockItem);
 				delete pSockItem;
 			}
 

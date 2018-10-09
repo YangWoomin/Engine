@@ -32,7 +32,11 @@ namespace ThreadpoolEngine
 
 		ICallbackData* GetCallbackData();
 
-		// 바인딩된 장치의 중첩 입출력을 취소
-		BOOL CancelThreadpoolCallbackIo(BOOL bCancelPendingCallbacks, ERROR_CODE& errorCode);
+		// 바인딩된 장치의 중첩 입출력을 정리
+		BOOL CleanupThreadpoolCallbackIo(BOOL bCancelPendingCallbacks, ERROR_CODE& errorCode);
+
+		// 콜백 객체로부터 입출력 완료 콜백 함수 호출을 개시했던 것을 취소하는 함수 
+		// 사용 예 : ExecuteThreadpoolCallbackIo 호출 후 비동기 입출력 함수(ex WSARecv) 호출을 실패했을 경우 이 함수를 호출해야 함
+		BOOL CancelThreadpoolCallbackIo(ERROR_CODE& errorCode);
 	};
 }

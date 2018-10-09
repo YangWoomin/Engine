@@ -101,6 +101,10 @@ void CCallbackDataForChildSocket::CallbackFunction(CALLBACK_DATA_PARAMETER callb
 			{
 				errorCode = (ERROR_CODE)pSockItem->Internal;
 				cout << "[SN : " << (int)bySN << "] [" << __FUNCTION__ << "] receiving data failed " << std::hex << errorCode << endl;
+
+				// 입출력 실패하면 콜백 객체에 대한 콜백 함수 호출 개시도 취소해야 함
+				ERROR_CODE errorCodeTemp = ERROR_CODE_NONE;
+				_pThreadpoolCallbackIoWrapper->CancelThreadpoolCallbackIo(errorCodeTemp);
 				throw (ERROR_CODE)errorCode;
 			}
 		}

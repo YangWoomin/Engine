@@ -13,35 +13,10 @@ using namespace ThreadpoolGroupManager;
 CThreadpoolCallbackWork::CThreadpoolCallbackWork()
 {
 	::InitializeCriticalSection(&_criticalSection);
-	
-	//_pThreadpoolCallbackObject = NULL;
-
-	//// 특정 그룹의 스레드풀 생성, 없으면 생성하고 있으면 그냥 쓰면 됨
-	//ThreadpoolGroupManager()->CreateThreadpool(threadpoolGroupParameter._dwThreadpoolGroup, threadpoolGroupParameter._iMinThreadCount, threadpoolGroupParameter._iMaxThreadCount, errorCode);
-
-	//// 스레드풀 특정 그룹에 콜백 객체를 추가
-	//if (ERROR_CODE_THREADPOOL_THREADPOOL_GROUP_ALREADY_EXISTS == errorCode || ERROR_CODE_NONE == errorCode)
-	//{
-	//	// 스레드풀 그룹 매니저에 의해 BindThreadpoolCallbackObject 호출됨
-	//	errorCode = ERROR_CODE_NONE;
-	//	_bIsGrouping = ThreadpoolGroupManager()->InsertThreadpoolCallbackObject(threadpoolGroupParameter._dwThreadpoolGroup, this, errorCode);
-	//}
 }
 
 CThreadpoolCallbackWork::~CThreadpoolCallbackWork()
 {
-	//// 특정 그룹의 스레드풀에 추가되었다면 제거
-	//if (TRUE == _bIsGrouping)
-	//{
-	//	// 스레드풀 그룹 매니저에 의해 ReleaseThreadpoolCallbackObject 호출됨
-	//	ERROR_CODE errorCode = ERROR_CODE_NONE;
-	//	ThreadpoolGroupManager()->DeleteThreadpoolCallbackObject(this, FALSE, errorCode);
-	//	_bIsGrouping = FALSE;
-	//}
-
-	//// 생성했던 스레드 풀은 여기서 제거하지 않도록 함
-	//// 스레드풀 그룹 매니저가 프로그램 종료할 때 일괄적으로 자동 제거
-
 	::DeleteCriticalSection(&_criticalSection);
 }
 
@@ -50,7 +25,7 @@ BOOL CThreadpoolCallbackWork::BindThreadpoolCallbackObject(const PTP_CALLBACK_EN
 	// 콜백 객체가 생성되어 있으면 안 됨, 중복 호출로 간주
 	if (NULL != _pThreadpoolCallbackObject)
 	{
-		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_WORK_ALREADY_BOUND;
+		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_ALREADY_BOUND;
 		return FALSE;
 	}
 
@@ -85,7 +60,7 @@ BOOL CThreadpoolCallbackWork::ExecuteThreadpoolCallbackWork(ICallbackData* pCall
 	// 콜백 객체가 바인딩되지 않았음
 	if (NULL == _pThreadpoolCallbackObject)
 	{
-		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_WORK_NOT_BOUND;
+		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_NOT_BOUND;
 		return FALSE;
 	}
 
@@ -99,6 +74,7 @@ BOOL CThreadpoolCallbackWork::ExecuteThreadpoolCallbackWork(ICallbackData* pCall
 	::SubmitThreadpoolWork(_pThreadpoolCallbackObject);
 
 	// submit 결과 이상 여부 확인
+	// STATUS_PENDING(ERROR_IO_PENDING)이 리턴될 수 있음
 	errorCode = (ERROR_CODE)::GetLastError();
 	if (ERROR_CODE_NONE != errorCode)
 	{
@@ -141,17 +117,17 @@ VOID CThreadpoolCallbackWork::ThreadpoolCallbackWorkCallbackFunction(PTP_CALLBAC
 
 	// pThreadpoolCallbackWork의 유효성 검사할 방법이 딱히 없음, 외부에서 관리를 잘 해주는 수 밖에
 	// 가장 먼저 push한 콜백 데이터부터 처리
-	ICallbackData* pCallbackData = pThreadpoolCallbackWork->GetCallbackDataFromQueue();
+	ICallbackData* pCallbackData = pThreadpoolCallbackWork->PopCallbackDataFromQueue();
 	if (NULL != pCallbackData)
 	{
 		if (NULL == pTpWork || NULL == pThreadpoolCallbackWork->GetThreadpoolCallbackObject())
 		{
-			pCallbackData->CallbackFunction(CALLBACK_DATA_PARAMETER(ERROR_CODE_THREADPOOL_CALLBACK_WORK_PTP_WORK_IS_NULL, 0, NULL, 0, 0));
+			pCallbackData->CallbackFunction(CALLBACK_DATA_PARAMETER(ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_IS_NULL));
 		}
 		else
 		{
 			// 콜백 데이터의 콜백 함수를 호출
-			pCallbackData->CallbackFunction(CALLBACK_DATA_PARAMETER(ERROR_CODE_NONE, 0, NULL, 0, 0));
+			pCallbackData->CallbackFunction(CALLBACK_DATA_PARAMETER(ERROR_CODE_NONE));
 		}
 
 		// 콜백 함수 호출 후 자동으로 콜백 데이터 해제를 허용하면 해제
@@ -171,7 +147,7 @@ BOOL CThreadpoolCallbackWork::SetCallbackData(ICallbackData* pCallbackData, BOOL
 	// 콜백 객체가 바인딩되지 않았음
 	if (NULL != _pThreadpoolCallbackObject)
 	{
-		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_WORK_NOT_BOUND;
+		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_NOT_BOUND;
 		return FALSE;
 	}
 
@@ -203,7 +179,7 @@ BOOL CThreadpoolCallbackWork::SetCallbackData(ICallbackData* pCallbackData, BOOL
 }
 */
 
-ICallbackData* CThreadpoolCallbackWork::GetCallbackDataFromQueue()
+ICallbackData* CThreadpoolCallbackWork::PopCallbackDataFromQueue()
 {
 	ICallbackData* pCallbackData = NULL;
 

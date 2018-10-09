@@ -14,34 +14,11 @@ CThreadpoolCallbackIo::CThreadpoolCallbackIo(HANDLE hDevice)
 {
 	_hDevice = hDevice;
 	_pCallbackData = NULL;
-
-	//_pThreadpoolCallbackObject = NULL;
-
-	//// 특정 그룹의 스레드풀 생성, 없으면 생성하고 있으면 그냥 쓰면 됨
-	//ThreadpoolGroupManager()->CreateThreadpool(threadpoolGroupParameter._dwThreadpoolGroup, threadpoolGroupParameter._iMinThreadCount, threadpoolGroupParameter._iMaxThreadCount, errorCode);
-
-	//// 스레드풀 특정 그룹에 콜백 객체를 추가
-	//if (ERROR_CODE_THREADPOOL_THREADPOOL_GROUP_ALREADY_EXISTS == errorCode || ERROR_CODE_NONE == errorCode)
-	//{
-	//	// 스레드풀 그룹 매니저에 의해 BindThreadpoolCallbackObject 호출됨
-	//	errorCode = ERROR_CODE_NONE;
-	//	_bIsGrouping = ThreadpoolGroupManager()->InsertThreadpoolCallbackObject(threadpoolGroupParameter._dwThreadpoolGroup, this, errorCode);
-	//}
 }
 
 CThreadpoolCallbackIo::~CThreadpoolCallbackIo()
 {
-	//// 특정 그룹의 스레드풀에 추가되었다면 제거
-	//if (TRUE == _bIsGrouping)
-	//{
-	//	// 스레드풀 그룹 매니저에 의해 ReleaseThreadpoolCallbackObject 호출됨
-	//	ERROR_CODE errorCode = ERROR_CODE_NONE;
-	//	ThreadpoolGroupManager()->DeleteThreadpoolCallbackObject(this, FALSE, errorCode);
-	//	_bIsGrouping = FALSE;
-	//}
 
-	//// 생성했던 스레드 풀은 여기서 제거하지 않도록 함
-	//// 스레드풀 그룹 매니저가 프로그램 종료할 때 일괄적으로 자동 제거
 }
 
 BOOL CThreadpoolCallbackIo::BindThreadpoolCallbackObject(const PTP_CALLBACK_ENVIRON pTpCallbackEnviron, ERROR_CODE& errorCode)
@@ -49,14 +26,14 @@ BOOL CThreadpoolCallbackIo::BindThreadpoolCallbackObject(const PTP_CALLBACK_ENVI
 	// 콜백 객체가 생성되어 있으면 안 됨, 중복 호출로 간주
 	if (NULL != _pThreadpoolCallbackObject)
 	{
-		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_IO_ALREADY_BOUND;
+		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_ALREADY_BOUND;
 		return FALSE;
 	}
 
 	// 장치가 세팅되어 있어야 함
 	if (NULL == _hDevice || INVALID_HANDLE_VALUE == _hDevice)
 	{
-		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_IO_INVALID_DEVICE;
+		errorCode = ERROR_CODE_THREADPOOL_INVALID_HANDLE;
 		return FALSE;
 	}
 
@@ -81,7 +58,7 @@ BOOL CThreadpoolCallbackIo::ReleaseThreadpoolCallbackObject(BOOL fCancelPendingC
 
 	if (NULL != _pThreadpoolCallbackObject)
 	{
-		bResult = CancelThreadpoolCallbackIo(fCancelPendingCallbacks, errorCode);
+		bResult = CleanupThreadpoolCallbackIo(fCancelPendingCallbacks, errorCode);
 
 		// 바인딩된 장치의 모든 중첩 입출력 취소의 결과와 무관하게 콜백 객체는 해제되어야 함
 		// ::WaitForThreadpoolIoCallbacks(_pThreadpoolCallbackObject, fCancelPendingCallbacks);
@@ -100,14 +77,14 @@ BOOL CThreadpoolCallbackIo::SetCallbackData(ICallbackData* pCallbackData, ERROR_
 	// 콜백 객체가 바인딩되지 않았음
 	if (NULL == _pThreadpoolCallbackObject)
 	{
-		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_IO_NOT_BOUND;
+		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_NOT_BOUND;
 		return FALSE;
 	}
 
 	// 스레드풀 IO 객체의 콜백 데이터를 중간에 변경하지 못하도록 막음
 	if (NULL != _pCallbackData)
 	{
-		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_IO_CALLBACK_DATA_ALREADY_SET;
+		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_DATA_ALREADY_SET;
 		return FALSE;
 	}
 
@@ -122,14 +99,14 @@ BOOL CThreadpoolCallbackIo::ExecuteThreadpoolCallbackIo(ERROR_CODE& errorCode)
 	// 콜백 객체가 바인딩되지 않았음
 	if (NULL == _pThreadpoolCallbackObject)
 	{
-		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_IO_NOT_BOUND;
+		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_NOT_BOUND;
 		return FALSE;
 	}
 
 	// 콜백 데이터가 세팅되어 있어야 함
 	if (NULL == _pCallbackData)
 	{
-		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_IO_CALLBACK_DATA_NOT_SET;
+		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_DATA_NOT_SET;
 		return FALSE;
 	}
 
@@ -139,7 +116,7 @@ BOOL CThreadpoolCallbackIo::ExecuteThreadpoolCallbackIo(ERROR_CODE& errorCode)
 	// 중첩 입출력 개시 결과 이상 여부 확인
 	// STATUS_PENDING(ERROR_IO_PENDING)이 리턴될 수 있음
 	errorCode = (ERROR_CODE)::GetLastError();
-	if (ERROR_CODE_NONE != errorCode)
+	if (ERROR_CODE_NONE != errorCode && ERROR_IO_PENDING != (DWORD)errorCode)
 	{
 		return FALSE;
 	}
@@ -162,12 +139,12 @@ VOID CThreadpoolCallbackIo::ThreadpoolCallbackIoCallbackFunction(PTP_CALLBACK_IN
 
 	if (NULL == pTpIo || NULL == pThreadpoolCallbackIo->GetThreadpoolCallbackObject())
 	{
-		pCallbackData->CallbackFunction(CALLBACK_DATA_PARAMETER(ERROR_CODE_THREADPOOL_CALLBACK_IO_PTP_IO_IS_NULL, 0, (LPOVERLAPPED)pOverlapped, ulIoResult, ulpNumberOfBytesTransferred));
+		pCallbackData->CallbackFunction(CALLBACK_DATA_PARAMETER(ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_IS_NULL, (LPOVERLAPPED)pOverlapped, ulIoResult, ulpNumberOfBytesTransferred));
 	}
 	else
 	{
 		// 콜백 데이터의 콜백 함수를 호출
-		pCallbackData->CallbackFunction(CALLBACK_DATA_PARAMETER(ERROR_CODE_NONE, 0, (LPOVERLAPPED)pOverlapped, ulIoResult, ulpNumberOfBytesTransferred));
+		pCallbackData->CallbackFunction(CALLBACK_DATA_PARAMETER(ERROR_CODE_NONE, (LPOVERLAPPED)pOverlapped, ulIoResult, ulpNumberOfBytesTransferred));
 	}
 
 	// 콜백 함수 호출 후 자동으로 콜백 데이터 해제를 허용하면 해제
@@ -182,19 +159,19 @@ ICallbackData* CThreadpoolCallbackIo::GetCallbackData()
 	return _pCallbackData;
 }
 
-BOOL CThreadpoolCallbackIo::CancelThreadpoolCallbackIo(BOOL bCancelPendingCallbacks, ERROR_CODE& errorCode)
+BOOL CThreadpoolCallbackIo::CleanupThreadpoolCallbackIo(BOOL bCancelPendingCallbacks, ERROR_CODE& errorCode)
 {
 	// 콜백 객체가 바인딩되지 않았음
 	if (NULL == _pThreadpoolCallbackObject)
 	{
-		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_IO_NOT_BOUND;
+		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_NOT_BOUND;
 		return FALSE;
 	}
 
 	//// 장치가 세팅되어 있어야 함
 	//if (NULL == _hDevice || INVALID_HANDLE_VALUE == _hDevice)
 	//{
-	//	errorCode = ERROR_CODE_THREADPOOL_CALLBACK_IO_INVALID_DEVICE;
+	//	errorCode = ERROR_CODE_THREADPOOL_INVALID_HANDLE;
 	//	return FALSE;
 	//}
 
@@ -209,10 +186,29 @@ BOOL CThreadpoolCallbackIo::CancelThreadpoolCallbackIo(BOOL bCancelPendingCallba
 	// 아니면 바인딩된 장치의 입출력 개시가 되지 않았더라도 크게 문제될 것은 없으므로 호출함
 	::WaitForThreadpoolIoCallbacks(_pThreadpoolCallbackObject, bCancelPendingCallbacks);
 	errorCode = (ERROR_CODE)::GetLastError();
-	if (ERROR_CODE_NONE != errorCode)
+	if (ERROR_CODE_NONE != errorCode && ERROR_IO_PENDING != (DWORD)errorCode)
 	{
 		bResult = FALSE;
 	}
 
 	return bResult;
+}
+
+BOOL CThreadpoolCallbackIo::CancelThreadpoolCallbackIo(ERROR_CODE& errorCode)
+{
+	// 콜백 객체가 바인딩되지 않았음
+	if (NULL == _pThreadpoolCallbackObject)
+	{
+		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_NOT_BOUND;
+		return FALSE;
+	}
+
+	::CancelThreadpoolIo(_pThreadpoolCallbackObject);
+	errorCode = (ERROR_CODE)::GetLastError();
+	if (ERROR_CODE_NONE != errorCode)
+	{
+		return FALSE;
+	}
+
+	return TRUE;
 }
