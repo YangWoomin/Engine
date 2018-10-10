@@ -1,14 +1,13 @@
 #include "Common.h"
 #include "Export.h"
 #include "ThreadpoolGroupManager.h" //
-#include "ThreadpoolCallbackObject.h"
-//#include "CallbackData.h"
-//#include "ThreadpoolGroupManager.h" //
+#include "ThreadpoolCallbackObject.h" //
 #include "ThreadpoolCallbackWork.h"
 #include "ThreadpoolCallbackWait.h"
 #include "ThreadpoolCallbackIo.h"
 
 using namespace ThreadpoolEngine;
+using namespace ThreadpoolGroupManager;
 
 // CThreadpoolCallbackWorkWrapper start //
 CThreadpoolCallbackWorkWrapper::CThreadpoolCallbackWorkWrapper(THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode)
@@ -21,7 +20,7 @@ CThreadpoolCallbackWorkWrapper::CThreadpoolCallbackWorkWrapper(THREADPOOL_GROUP_
 	else
 	{
 		// 콜백 객체를 스레드풀에 그루핑
-		_pThreadpoolCallbackWork->Initialize(threadpoolGroupParameter, errorCode);
+		_pThreadpoolCallbackWork->InitializeThreadpoolCallbackObject(threadpoolGroupParameter, errorCode);
 	}
 }
 
@@ -30,7 +29,7 @@ CThreadpoolCallbackWorkWrapper::~CThreadpoolCallbackWorkWrapper()
 	if (NULL != _pThreadpoolCallbackWork)
 	{
 		// 콜백 객체를 그루핑된 스레드풀에서 제거
-		_pThreadpoolCallbackWork->Finalize();
+		_pThreadpoolCallbackWork->FinalizeThreadpoolCallbackObject();
 
 		delete _pThreadpoolCallbackWork;
 		_pThreadpoolCallbackWork = NULL;
@@ -60,7 +59,7 @@ CThreadpoolCallbackWaitWrapper::CThreadpoolCallbackWaitWrapper(THREADPOOL_GROUP_
 	else
 	{
 		// 콜백 객체를 스레드풀에 그루핑
-		_pThreadpoolCallbackWait->Initialize(threadpoolGroupParameter, errorCode);
+		_pThreadpoolCallbackWait->InitializeThreadpoolCallbackObject(threadpoolGroupParameter, errorCode);
 	}
 }
 
@@ -69,7 +68,7 @@ CThreadpoolCallbackWaitWrapper::~CThreadpoolCallbackWaitWrapper()
 	if (NULL != _pThreadpoolCallbackWait)
 	{
 		// 콜백 객체를 그루핑된 스레드풀에서 제거
-		_pThreadpoolCallbackWait->Finalize();
+		_pThreadpoolCallbackWait->FinalizeThreadpoolCallbackObject();
 
 		delete _pThreadpoolCallbackWait;
 		_pThreadpoolCallbackWait = NULL;
@@ -122,7 +121,7 @@ CThreadpoolCallbackIoWrapper::CThreadpoolCallbackIoWrapper(HANDLE hDevice, THREA
 	else
 	{
 		// 콜백 객체를 스레드풀에 그루핑
-		_pThreadpoolCallbackIo->Initialize(threadpoolGroupParameter, errorCode);
+		_pThreadpoolCallbackIo->InitializeThreadpoolCallbackObject(threadpoolGroupParameter, errorCode);
 	}
 }
 
@@ -131,7 +130,7 @@ CThreadpoolCallbackIoWrapper::~CThreadpoolCallbackIoWrapper()
 	if (NULL != _pThreadpoolCallbackIo)
 	{
 		// 콜백 객체를 그루핑된 스레드풀에서 제거
-		_pThreadpoolCallbackIo->Finalize();
+		_pThreadpoolCallbackIo->FinalizeThreadpoolCallbackObject();
 
 		delete _pThreadpoolCallbackIo;
 		_pThreadpoolCallbackIo = NULL;

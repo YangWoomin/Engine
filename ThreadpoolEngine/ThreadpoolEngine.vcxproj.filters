@@ -45,6 +45,9 @@
     <ClInclude Include="ThreadpoolCallbackWait.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ThreadpoolCallbackTimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThreadpoolGroupManager.cpp">
@@ -68,5 +71,13 @@
     <ClCompile Include="ThreadpoolCallbackWait.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ThreadpoolCallbackTimer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ThreadpoolCallbackObject.inl">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

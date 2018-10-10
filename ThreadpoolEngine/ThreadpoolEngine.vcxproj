@@ -152,6 +152,7 @@
     <ClInclude Include="SingletonInitializer.h" />
     <ClInclude Include="ThreadpoolCallbackIo.h" />
     <ClInclude Include="ThreadpoolCallbackObject.h" />
+    <ClInclude Include="ThreadpoolCallbackTimer.h" />
     <ClInclude Include="ThreadpoolCallbackWait.h" />
     <ClInclude Include="ThreadpoolGroupManager.h" />
     <ClInclude Include="ThreadpoolCallbackWork.h" />
@@ -161,10 +162,14 @@
     <ClCompile Include="Export.cpp" />
     <ClCompile Include="SingletonInitializer.cpp" />
     <ClCompile Include="ThreadpoolCallbackIo.cpp" />
+    <ClCompile Include="ThreadpoolCallbackTimer.cpp" />
     <ClCompile Include="ThreadpoolCallbackWait.cpp" />
     <ClCompile Include="ThreadpoolGroupManager.cpp" />
     <ClCompile Include="ThreadpoolCallbackWork.cpp" />
     <ClCompile Include="Utilities.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ThreadpoolCallbackObject.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -31,7 +31,7 @@ BOOL CThreadpoolCallbackWork::BindThreadpoolCallbackObject(const PTP_CALLBACK_EN
 
 	// 콜백 데이터를 콜백 함수의 매개 변수로 받을 수 있도록 함
 	// pTpCallbackEnviron는 NULL일 수도 있어서 검사하지 않음
-	_pThreadpoolCallbackObject = ::CreateThreadpoolWork(ThreadpoolCallbackWorkCallbackFunction, (PVOID)this, pTpCallbackEnviron);
+	_pThreadpoolCallbackObject = ::CreateThreadpoolWork(CallbackThreadpoolCallbackWork, (PVOID)this, pTpCallbackEnviron);
 
 	// 실패하면 NULL을 리턴함
 	if (NULL == _pThreadpoolCallbackObject)
@@ -76,42 +76,15 @@ BOOL CThreadpoolCallbackWork::ExecuteThreadpoolCallbackWork(ICallbackData* pCall
 	// submit 결과 이상 여부 확인
 	// STATUS_PENDING(ERROR_IO_PENDING)이 리턴될 수 있음
 	errorCode = (ERROR_CODE)::GetLastError();
-	if (ERROR_CODE_NONE != errorCode)
+	if (ERROR_CODE_NONE != errorCode && ERROR_IO_PENDING != (DWORD)errorCode)
 	{
 		return FALSE;
 	}
 
-	// 아래 코드는 혹시나 쓸 일이 있을까봐 우선 남겨 놓도록 함
-	/*
-	// 콜백 객체의 콜백 함수 호출 개시 횟수가 최대치에 도달하면 에러 처리
-	if (_MAXIMUM_CALLBACK_RUNNING_COUNT <= GetCallbackRunningCount())
-	{
-	errorCode = ERROR_CODE_THREADPOOL_CALLBACK_WORK_CALLBACK_COUNT_MAX;
-	return FALSE;
-	}
-
-	// 이전의 콜백 함수 호출이 완료된 후 콜백 함수 호출 개시를 하고 싶다면
-	if (TRUE == bWaitForPreviousCallback)
-	{
-	// 이전 콜백 함수의 작업이 완료되도록 잠시 대기
-	::WaitForThreadpoolWorkCallbacks(_pThreadpoolCallbackObject, fCancelPendingCallbacks);
-
-	// 만약 이전 콜백 함수의 작업을 모두 취소한다면
-	if (TRUE == fCancelPendingCallbacks)
-	{
-	// 콜백 함수 호출 개시 횟수도 0으로 초기화
-	ResetCallbackRunningCount();
-	}
-	}
-
-	// 콜백 함수 호출 개시 횟수 증가
-	IncreaseCallbackRunningCount();
-	*/
-
 	return TRUE;
 }
 
-VOID CThreadpoolCallbackWork::ThreadpoolCallbackWorkCallbackFunction(PTP_CALLBACK_INSTANCE pInstance, PVOID pParam, PTP_WORK pTpWork)
+VOID CThreadpoolCallbackWork::CallbackThreadpoolCallbackWork(PTP_CALLBACK_INSTANCE pInstance, PVOID pParam, PTP_WORK pTpWork)
 {
 	CThreadpoolCallbackWork* pThreadpoolCallbackWork = (CThreadpoolCallbackWork*)pParam;
 
@@ -120,7 +93,7 @@ VOID CThreadpoolCallbackWork::ThreadpoolCallbackWorkCallbackFunction(PTP_CALLBAC
 	ICallbackData* pCallbackData = pThreadpoolCallbackWork->PopCallbackDataFromQueue();
 	if (NULL != pCallbackData)
 	{
-		if (NULL == pTpWork || NULL == pThreadpoolCallbackWork->GetThreadpoolCallbackObject())
+		if (NULL == pThreadpoolCallbackWork->GetThreadpoolCallbackObject())
 		{
 			pCallbackData->CallbackFunction(CALLBACK_DATA_PARAMETER(ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_IS_NULL));
 		}
@@ -137,47 +110,6 @@ VOID CThreadpoolCallbackWork::ThreadpoolCallbackWorkCallbackFunction(PTP_CALLBAC
 		}
 	}
 }
-
-// 아래 코드는 혹시나 쓸 일이 있을까봐 우선 남겨 놓도록 함
-/*
-BOOL CThreadpoolCallbackWork::SetCallbackData(ICallbackData* pCallbackData, BOOL bWaitForPreviousCallback, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode)
-{
-	errorCode = ERROR_CODE_NONE;
-
-	// 콜백 객체가 바인딩되지 않았음
-	if (NULL != _pThreadpoolCallbackObject)
-	{
-		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_NOT_BOUND;
-		return FALSE;
-	}
-
-	// 현재 콜백 함수 호출 개시된 횟수가 0보다 크다면
-	if (0 < GetCallbackRunningCount())
-	{
-		// 기다리지 않는다면 에러 처리
-		if (FALSE == bWaitForPreviousCallback)
-		{
-			errorCode = ERROR_CODE_THREADPOOL_CALLBACK_WORK_CALLBACK_FUNCTION_RUNNING;
-			return FALSE;
-		}
-
-		// 이전 콜백 함수 호출이 완료될 때까지 대기
-		::WaitForThreadpoolWorkCallbacks(_pThreadpoolCallbackObject, fCancelPendingCallbacks);
-
-		// 이전 콜백 함수의 작업을 모두 취소한다면
-		if (TRUE == fCancelPendingCallbacks)
-		{
-			// 콜백 함수 호출 개시 횟수도 0으로 초기화
-			ResetCallbackRunningCount();
-		}
-	}
-	
-	// 콜백 데이터 변경
-	_pCallbackData = pCallbackData;
-
-	return TRUE;
-}
-*/
 
 ICallbackData* CThreadpoolCallbackWork::PopCallbackDataFromQueue()
 {

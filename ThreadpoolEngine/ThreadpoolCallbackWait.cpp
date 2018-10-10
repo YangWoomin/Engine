@@ -12,7 +12,6 @@ using namespace ThreadpoolGroupManager;
 
 CThreadpoolCallbackWait::CThreadpoolCallbackWait()
 {
-	_pCallbackData = NULL;
 	_hObject = INVALID_HANDLE_VALUE;
 	memset(&_fileTime, 0, sizeof(_fileTime));
 }
@@ -33,7 +32,7 @@ BOOL CThreadpoolCallbackWait::BindThreadpoolCallbackObject(const PTP_CALLBACK_EN
 
 	// 콜백 데이터를 콜백 함수의 매개 변수로 받을 수 있도록 함
 	// pTpCallbackEnviron는 NULL일 수도 있어서 검사하지 않음
-	_pThreadpoolCallbackObject = ::CreateThreadpoolWait(ThreadpoolCallbackWaitCallbackFunction, (PVOID)this, pTpCallbackEnviron);
+	_pThreadpoolCallbackObject = ::CreateThreadpoolWait(CallbackThreadpoolCallbackWait, (PVOID)this, pTpCallbackEnviron);
 
 	// 실패하면 NULL을 리턴함
 	if (NULL == _pThreadpoolCallbackObject)
@@ -70,7 +69,7 @@ BOOL CThreadpoolCallbackWait::ExecuteThreadpoolCallbackWait(HANDLE hObject, ICal
 	::WaitForThreadpoolWaitCallbacks(_pThreadpoolCallbackObject, fCancelPendingCallbacks);
 
 	errorCode = (ERROR_CODE)::GetLastError();
-	if (ERROR_CODE_NONE != errorCode && ERROR_IO_PENDING != (DWORD)errorCode)
+	if (ERROR_CODE_NONE != errorCode)
 	{
 		return FALSE;
 	}
@@ -102,35 +101,12 @@ BOOL CThreadpoolCallbackWait::ExecuteThreadpoolCallbackWait(HANDLE hObject, ICal
 	return TRUE;
 }
 
-VOID CThreadpoolCallbackWait::ThreadpoolCallbackWaitCallbackFunction(PTP_CALLBACK_INSTANCE pInstance, PVOID pParam, PTP_WAIT pTpWait, TP_WAIT_RESULT tpWaitResult)
+VOID CThreadpoolCallbackWait::CallbackThreadpoolCallbackWait(PTP_CALLBACK_INSTANCE pInstance, PVOID pParam, PTP_WAIT pTpWait, TP_WAIT_RESULT tpWaitResult)
 {
 	CThreadpoolCallbackWait* pThreadpoolCallbackWait = (CThreadpoolCallbackWait*)pParam;
 
-	// CThreadpoolCallbackWait의 유효성 검사할 방법이 딱히 없음, 외부에서 관리를 잘 해주는 수 밖에
-	ICallbackData* pCallbackData = pThreadpoolCallbackWait->GetCallbackData();
-	if (NULL != pCallbackData)
-	{
-		if (NULL == pTpWait || NULL == pThreadpoolCallbackWait->GetThreadpoolCallbackObject())
-		{
-			pCallbackData->CallbackFunction(CALLBACK_DATA_PARAMETER(ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_IS_NULL, tpWaitResult, pThreadpoolCallbackWait->GetObjectHandle()));
-		}
-		else
-		{
-			// 콜백 데이터의 콜백 함수를 호출
-			pCallbackData->CallbackFunction(CALLBACK_DATA_PARAMETER(ERROR_CODE_NONE, tpWaitResult, pThreadpoolCallbackWait->GetObjectHandle()));
-		}
-
-		// 콜백 함수 호출 후 자동으로 콜백 데이터 해제를 허용하면 해제
-		if (TRUE == pCallbackData->DeleteCallbackDataAutomatically())
-		{
-			delete pCallbackData;
-		}
-	}
-}
-
-ICallbackData* CThreadpoolCallbackWait::GetCallbackData()
-{
-	return _pCallbackData;
+	// pThreadpoolCallbackWait의 유효성 검사할 방법이 딱히 없음, 외부에서 관리를 잘 해주는 수 밖에
+	pThreadpoolCallbackWait->CallbackThreadpoolCallbackObject(CALLBACK_DATA_PARAMETER(ERROR_CODE_NONE, tpWaitResult, pThreadpoolCallbackWait->GetObjectHandle()));
 }
 
 HANDLE CThreadpoolCallbackWait::GetObjectHandle()

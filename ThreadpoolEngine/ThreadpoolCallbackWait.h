@@ -5,9 +5,6 @@ namespace ThreadpoolEngine
 	class CThreadpoolCallbackWait : public CThreadpoolCallbackObject<PTP_WAIT>
 	{
 	private:
-		// 콜백 함수가 호출되고 작업할 콜백 데이터
-		ICallbackData* _pCallbackData;
-
 		// 콜백 객체와 바인딩할 동기화 커널 객체
 		HANDLE _hObject;
 
@@ -28,9 +25,7 @@ namespace ThreadpoolEngine
 		BOOL ExecuteThreadpoolCallbackWait(HANDLE hObject, ICallbackData* pCallbackData, FILETIME fileTime, BOOL bInfinite, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode);
 
 		// 콜백 객체에 대해 호출될 콜백 함수
-		static VOID CALLBACK ThreadpoolCallbackWaitCallbackFunction(PTP_CALLBACK_INSTANCE pInstance, PVOID pParam, PTP_WAIT pTpWait, TP_WAIT_RESULT tpWaitResult);
-
-		ICallbackData* GetCallbackData();
+		static VOID CALLBACK CallbackThreadpoolCallbackWait(PTP_CALLBACK_INSTANCE pInstance, PVOID pParam, PTP_WAIT pTpWait, TP_WAIT_RESULT tpWaitResult);
 
 		HANDLE GetObjectHandle();
 	};

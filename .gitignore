@@ -63,3 +63,4 @@ x64/Debug/EchoClient(EngineTest).pdb
 x64/Debug/EchoServer(EngineTest).ilk
 x64/Debug/EchoServer(EngineTest).pdb
 ThreadpoolEngine/x64/Debug/ThreadpoolCallbackWait.obj
+ThreadpoolEngine/x64/Debug/ThreadpoolCallbackTimer.obj

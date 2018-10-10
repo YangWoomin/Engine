@@ -13,7 +13,6 @@ using namespace ThreadpoolGroupManager;
 CThreadpoolCallbackIo::CThreadpoolCallbackIo(HANDLE hDevice)
 {
 	_hDevice = hDevice;
-	_pCallbackData = NULL;
 }
 
 CThreadpoolCallbackIo::~CThreadpoolCallbackIo()
@@ -39,7 +38,7 @@ BOOL CThreadpoolCallbackIo::BindThreadpoolCallbackObject(const PTP_CALLBACK_ENVI
 
 	// 콜백 데이터를 콜백 함수의 매개 변수로 받을 수 있도록 함
 	// pTpCallbackEnviron는 NULL일 수도 있어서 검사하지 않음
-	_pThreadpoolCallbackObject = ::CreateThreadpoolIo(_hDevice, ThreadpoolCallbackIoCallbackFunction, (PVOID)this, pTpCallbackEnviron);
+	_pThreadpoolCallbackObject = ::CreateThreadpoolIo(_hDevice, CallbackThreadpoolCallbackIo, (PVOID)this, pTpCallbackEnviron);
 	
 	// 실패하면 NULL을 리턴함, 보통 장치가 문제 있을 때 
 	// OVERLAPPED로 중첩 입출력 장치로 생성하지 않았을 경우 ::GetLastError()에서 87 (ERROR_INVALID_PARAMETER) 리턴
@@ -124,39 +123,12 @@ BOOL CThreadpoolCallbackIo::ExecuteThreadpoolCallbackIo(ERROR_CODE& errorCode)
 	return TRUE;
 }
 
-VOID CThreadpoolCallbackIo::ThreadpoolCallbackIoCallbackFunction(PTP_CALLBACK_INSTANCE pInstance, PVOID pParam, PVOID pOverlapped, ULONG ulIoResult, ULONG_PTR ulpNumberOfBytesTransferred, PTP_IO pTpIo)
+VOID CThreadpoolCallbackIo::CallbackThreadpoolCallbackIo(PTP_CALLBACK_INSTANCE pInstance, PVOID pParam, PVOID pOverlapped, ULONG ulIoResult, ULONG_PTR ulpNumberOfBytesTransferred, PTP_IO pTpIo)
 {
 	CThreadpoolCallbackIo* pThreadpoolCallbackIo = (CThreadpoolCallbackIo*)pParam;
 
 	// pThreadpoolCallbackIo의 유효성 검사할 방법이 딱히 없음, 외부에서 관리를 잘 해주는 수 밖에
-	ICallbackData* pCallbackData = pThreadpoolCallbackIo->GetCallbackData();
-
-	// 콜백 데이터가 NULL이면 아무것도 못함
-	if (NULL == pCallbackData)
-	{
-		return;
-	}
-
-	if (NULL == pTpIo || NULL == pThreadpoolCallbackIo->GetThreadpoolCallbackObject())
-	{
-		pCallbackData->CallbackFunction(CALLBACK_DATA_PARAMETER(ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_IS_NULL, (LPOVERLAPPED)pOverlapped, ulIoResult, ulpNumberOfBytesTransferred));
-	}
-	else
-	{
-		// 콜백 데이터의 콜백 함수를 호출
-		pCallbackData->CallbackFunction(CALLBACK_DATA_PARAMETER(ERROR_CODE_NONE, (LPOVERLAPPED)pOverlapped, ulIoResult, ulpNumberOfBytesTransferred));
-	}
-
-	// 콜백 함수 호출 후 자동으로 콜백 데이터 해제를 허용하면 해제
-	if (TRUE == pCallbackData->DeleteCallbackDataAutomatically())
-	{
-		delete pCallbackData;
-	}
-}
-
-ICallbackData* CThreadpoolCallbackIo::GetCallbackData()
-{
-	return _pCallbackData;
+	pThreadpoolCallbackIo->CallbackThreadpoolCallbackObject(CALLBACK_DATA_PARAMETER(ERROR_CODE_NONE, (LPOVERLAPPED)pOverlapped, ulIoResult, ulpNumberOfBytesTransferred));
 }
 
 BOOL CThreadpoolCallbackIo::CleanupThreadpoolCallbackIo(BOOL bCancelPendingCallbacks, ERROR_CODE& errorCode)
@@ -167,13 +139,6 @@ BOOL CThreadpoolCallbackIo::CleanupThreadpoolCallbackIo(BOOL bCancelPendingCallb
 		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_NOT_BOUND;
 		return FALSE;
 	}
-
-	//// 장치가 세팅되어 있어야 함
-	//if (NULL == _hDevice || INVALID_HANDLE_VALUE == _hDevice)
-	//{
-	//	errorCode = ERROR_CODE_THREADPOOL_INVALID_HANDLE;
-	//	return FALSE;
-	//}
 
 	// 바인딩된 장치의 모든 중첩 입출력을 취소
 	BOOL bResult = ::CancelIoEx(_hDevice, NULL);
@@ -186,7 +151,7 @@ BOOL CThreadpoolCallbackIo::CleanupThreadpoolCallbackIo(BOOL bCancelPendingCallb
 	// 아니면 바인딩된 장치의 입출력 개시가 되지 않았더라도 크게 문제될 것은 없으므로 호출함
 	::WaitForThreadpoolIoCallbacks(_pThreadpoolCallbackObject, bCancelPendingCallbacks);
 	errorCode = (ERROR_CODE)::GetLastError();
-	if (ERROR_CODE_NONE != errorCode && ERROR_IO_PENDING != (DWORD)errorCode)
+	if (ERROR_CODE_NONE != errorCode)
 	{
 		bResult = FALSE;
 	}

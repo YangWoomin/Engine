@@ -160,7 +160,7 @@ namespace ThreadpoolEngine
 			_ulpNumberOfBytesTransferred = ulpNumberOfBytesTransferred;
 		}
 
-		// Work 콜백 객체 전용 생성자
+		// Work/Timer 콜백 객체 전용 생성자
 		CALLBACK_DATA_PARAMETER(ERROR_CODE errorCode)
 		{
 			_errorCode = errorCode;
@@ -195,6 +195,11 @@ namespace ThreadpoolEngine
 			_pOverlapped = pOverlapped;
 			_ulIoResult = ulIoResult;
 			_ulpNumberOfBytesTransferred = ulpNumberOfBytesTransferred;
+		}
+
+		void SetErrorCode(ERROR_CODE errorCode)
+		{
+			_errorCode = errorCode;
 		}
 	};
 

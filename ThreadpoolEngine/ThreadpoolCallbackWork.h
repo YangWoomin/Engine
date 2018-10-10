@@ -28,7 +28,7 @@ namespace ThreadpoolEngine
 		BOOL ExecuteThreadpoolCallbackWork(ICallbackData* pCallbackData, ERROR_CODE& errorCode);
 
 		// 콜백 객체에 대해 호출될 콜백 함수
-		static VOID CALLBACK ThreadpoolCallbackWorkCallbackFunction(PTP_CALLBACK_INSTANCE pInstance, PVOID pParam, PTP_WORK pTpWork);
+		static VOID CALLBACK CallbackThreadpoolCallbackWork(PTP_CALLBACK_INSTANCE pInstance, PVOID pParam, PTP_WORK pTpWork);
 
 		// 콜백 함수에서 작업할 콜백 데이터를 큐로부터 추출
 		ICallbackData* PopCallbackDataFromQueue();
