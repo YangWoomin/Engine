@@ -1,83 +1,125 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="ThreadpoolCallbackObject">
+      <UniqueIdentifier>{c46e216e-522f-456e-b43f-48238a54b0ad}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    <Filter Include="ThreadpoolCallbackObject\ThreadpoolCallbackWork">
+      <UniqueIdentifier>{788bc018-7d00-44d6-aff3-40a89a4869c0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="ThreadpoolCallbackObject\ThreadpoolCallbackWait">
+      <UniqueIdentifier>{535bd7a6-2960-4e9e-aa16-e3b13de868d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThreadpoolCallbackObject\ThreadpoolCallbackIo">
+      <UniqueIdentifier>{b9d8d532-a189-4ccc-b55f-7b2d033c10e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThreadpoolCallbackObject\ThreadpoolCallbackTimer">
+      <UniqueIdentifier>{787f7e4f-c46d-468f-a21c-c0f3711c65e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThreadpoolGroupManager">
+      <UniqueIdentifier>{2bc4c681-16c1-4e2b-97e6-8fb56122c6da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{0bac2fa7-e1b5-4e76-9cb2-77c6732a730e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include">
+      <UniqueIdentifier>{80b8dea7-0924-4f75-899f-c68fe2ad7a72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Export">
+      <UniqueIdentifier>{428ce5c8-dc6e-498b-9a1e-fc495fcdf345}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Export\ThreadpoolCallbackWorkWrapper">
+      <UniqueIdentifier>{9d2986be-6b86-4047-99ca-56bb1b6e352c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Export\ThreadpoolCallbackWaitWrapper">
+      <UniqueIdentifier>{ea7c97f1-8960-4e42-be16-bb78021f0811}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Export\ThreadpoolCallbackTimerWrapper">
+      <UniqueIdentifier>{1b2785a8-a887-42fc-a7b6-aea299805eca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Export\ThreadpoolCallbackIoWrapper">
+      <UniqueIdentifier>{8902767f-e846-4ce0-9306-9951f72dfbf9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Others">
+      <UniqueIdentifier>{4ce4b772-bec3-4b0d-abe5-f710f9e27829}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="ThreadpoolCallbackObject\ThreadpoolCallbackObject.h">
+      <Filter>ThreadpoolCallbackObject</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadpoolGroupManager.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="ThreadpoolCallbackObject\ThreadpoolCallbackWork\ThreadpoolCallbackWork.h">
+      <Filter>ThreadpoolCallbackObject\ThreadpoolCallbackWork</Filter>
     </ClInclude>
-    <ClInclude Include="Utilities.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="ThreadpoolCallbackObject\ThreadpoolCallbackWait\ThreadpoolCallbackWait.h">
+      <Filter>ThreadpoolCallbackObject\ThreadpoolCallbackWait</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadpoolCallbackObject.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="ThreadpoolCallbackObject\ThreadpoolCallbackIo\ThreadpoolCallbackIo.h">
+      <Filter>ThreadpoolCallbackObject\ThreadpoolCallbackIo</Filter>
     </ClInclude>
-    <ClInclude Include="SingletonInitializer.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="ThreadpoolCallbackObject\ThreadpoolCallbackTimer\ThreadpoolCallbackTimer.h">
+      <Filter>ThreadpoolCallbackObject\ThreadpoolCallbackTimer</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadpoolCallbackWork.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Utilities\Utilities.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="CallbackData.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Include\ExportCommon.h">
+      <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadpoolCallbackIo.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="ThreadpoolGroupManager\ThreadpoolGroupManager.h">
+      <Filter>ThreadpoolGroupManager</Filter>
     </ClInclude>
-    <ClInclude Include="Export.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Include\ThreadpoolCallbackWorkWrapper.h">
+      <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadpoolCallbackWait.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Include\ThreadpoolCallbackWaitWrapper.h">
+      <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadpoolCallbackTimer.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Include\ThreadpoolCallbackTimerWrapper.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ThreadpoolCallbackIoWrapper.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Others\Common.h">
+      <Filter>Others</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ThreadpoolGroupManager.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="ThreadpoolCallbackObject\ThreadpoolCallbackWork\ThreadpoolCallbackWork.cpp">
+      <Filter>ThreadpoolCallbackObject\ThreadpoolCallbackWork</Filter>
     </ClCompile>
-    <ClCompile Include="Utilities.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="ThreadpoolCallbackObject\ThreadpoolCallbackWait\ThreadpoolCallbackWait.cpp">
+      <Filter>ThreadpoolCallbackObject\ThreadpoolCallbackWait</Filter>
     </ClCompile>
-    <ClCompile Include="SingletonInitializer.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="ThreadpoolCallbackObject\ThreadpoolCallbackIo\ThreadpoolCallbackIo.cpp">
+      <Filter>ThreadpoolCallbackObject\ThreadpoolCallbackIo</Filter>
     </ClCompile>
-    <ClCompile Include="ThreadpoolCallbackWork.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="ThreadpoolCallbackObject\ThreadpoolCallbackTimer\ThreadpoolCallbackTimer.cpp">
+      <Filter>ThreadpoolCallbackObject\ThreadpoolCallbackTimer</Filter>
     </ClCompile>
-    <ClCompile Include="ThreadpoolCallbackIo.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Utilities\Utilities.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="Export.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="ThreadpoolGroupManager\ThreadpoolGroupManager.cpp">
+      <Filter>ThreadpoolGroupManager</Filter>
     </ClCompile>
-    <ClCompile Include="ThreadpoolCallbackWait.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Export\ThreadpoolCallbackWorkWrapper\ThreadpoolCallbackWorkWrapper.cpp">
+      <Filter>Export\ThreadpoolCallbackWorkWrapper</Filter>
     </ClCompile>
-    <ClCompile Include="ThreadpoolCallbackTimer.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Export\ThreadpoolCallbackWaitWrapper\ThreadpoolCallbackWaitWrapper.cpp">
+      <Filter>Export\ThreadpoolCallbackWaitWrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="Export\ThreadpoolCallbackTimerWrapper\ThreadpoolCallbackTimerWrapper.cpp">
+      <Filter>Export\ThreadpoolCallbackTimerWrapper</Filter>
+    </ClCompile>
+    <ClCompile Include="Export\ThreadpoolCallbackIoWrapper\ThreadpoolCallbackIoWrapper.cpp">
+      <Filter>Export\ThreadpoolCallbackIoWrapper</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ThreadpoolCallbackObject.inl">
-      <Filter>Source Files</Filter>
+    <None Include="ThreadpoolCallbackObject\ThreadpoolCallbackObject.inl">
+      <Filter>ThreadpoolCallbackObject</Filter>
     </None>
   </ItemGroup>
 </Project>

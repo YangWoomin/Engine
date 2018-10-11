@@ -73,13 +73,15 @@
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)\Outputs\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)\Outputs\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -103,11 +105,20 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;THREADPOOLENGINE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\Export\;$(ProjectDir)\Export\ThreadpoolCallbackIoWrapper\;$(ProjectDir)\Export\ThreadpoolCallbackTimerWrapper\;$(ProjectDir)\Export\ThreadpoolCallbackWaitWrapper\;$(ProjectDir)\Export\ThreadpoolCallbackWorkWrapper\;$(ProjectDir)\Include\;$(ProjectDir)\Others\;$(ProjectDir)\ThreadpoolCallbackObject\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackIo\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackTimer\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackWait\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackWork\;$(ProjectDir)\ThreadpoolGroupManager\;$(ProjectDir)\Utilities\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(OutDir)\$(TargetName).dll" "$(ProjectDir)\Include\$(Platform)\$(Configuration)\"
+copy /Y "$(OutDir)\$(TargetName).lib" "$(ProjectDir)\Include\$(Platform)\$(Configuration)\"
+copy /Y "$(OutDir)\$(TargetName).dll" "$(SolutionDir)\$(Platform)\$(Configuration)\"
+copy /Y "$(OutDir)\$(TargetName).lib" "$(SolutionDir)\$(Platform)\$(Configuration)\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -137,6 +148,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;THREADPOOLENGINE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\Export\;$(ProjectDir)\Export\ThreadpoolCallbackIoWrapper\;$(ProjectDir)\Export\ThreadpoolCallbackTimerWrapper\;$(ProjectDir)\Export\ThreadpoolCallbackWaitWrapper\;$(ProjectDir)\Export\ThreadpoolCallbackWorkWrapper\;$(ProjectDir)\Include\;$(ProjectDir)\Others\;$(ProjectDir)\ThreadpoolCallbackObject\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackIo\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackTimer\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackWait\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackWork\;$(ProjectDir)\ThreadpoolGroupManager\;$(ProjectDir)\Utilities\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -144,32 +156,42 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(OutDir)\$(TargetName).dll" "$(ProjectDir)\Include\$(Platform)\$(Configuration)\"
+copy /Y "$(OutDir)\$(TargetName).lib" "$(ProjectDir)\Include\$(Platform)\$(Configuration)\"
+copy /Y "$(OutDir)\$(TargetName).dll" "$(SolutionDir)\$(Platform)\$(Configuration)\"
+copy /Y "$(OutDir)\$(TargetName).lib" "$(SolutionDir)\$(Platform)\$(Configuration)\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CallbackData.h" />
-    <ClInclude Include="Common.h" />
-    <ClInclude Include="Export.h" />
-    <ClInclude Include="SingletonInitializer.h" />
-    <ClInclude Include="ThreadpoolCallbackIo.h" />
-    <ClInclude Include="ThreadpoolCallbackObject.h" />
-    <ClInclude Include="ThreadpoolCallbackTimer.h" />
-    <ClInclude Include="ThreadpoolCallbackWait.h" />
-    <ClInclude Include="ThreadpoolGroupManager.h" />
-    <ClInclude Include="ThreadpoolCallbackWork.h" />
-    <ClInclude Include="Utilities.h" />
+    <ClInclude Include="Include\ExportCommon.h" />
+    <ClInclude Include="Include\ThreadpoolCallbackIoWrapper.h" />
+    <ClInclude Include="Include\ThreadpoolCallbackTimerWrapper.h" />
+    <ClInclude Include="Include\ThreadpoolCallbackWaitWrapper.h" />
+    <ClInclude Include="Include\ThreadpoolCallbackWorkWrapper.h" />
+    <ClInclude Include="Others\Common.h" />
+    <ClInclude Include="ThreadpoolCallbackObject\ThreadpoolCallbackIo\ThreadpoolCallbackIo.h" />
+    <ClInclude Include="ThreadpoolCallbackObject\ThreadpoolCallbackObject.h" />
+    <ClInclude Include="ThreadpoolCallbackObject\ThreadpoolCallbackTimer\ThreadpoolCallbackTimer.h" />
+    <ClInclude Include="ThreadpoolCallbackObject\ThreadpoolCallbackWait\ThreadpoolCallbackWait.h" />
+    <ClInclude Include="ThreadpoolCallbackObject\ThreadpoolCallbackWork\ThreadpoolCallbackWork.h" />
+    <ClInclude Include="ThreadpoolGroupManager\ThreadpoolGroupManager.h" />
+    <ClInclude Include="Utilities\Utilities.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Export.cpp" />
-    <ClCompile Include="SingletonInitializer.cpp" />
-    <ClCompile Include="ThreadpoolCallbackIo.cpp" />
-    <ClCompile Include="ThreadpoolCallbackTimer.cpp" />
-    <ClCompile Include="ThreadpoolCallbackWait.cpp" />
-    <ClCompile Include="ThreadpoolGroupManager.cpp" />
-    <ClCompile Include="ThreadpoolCallbackWork.cpp" />
-    <ClCompile Include="Utilities.cpp" />
+    <ClCompile Include="Export\ThreadpoolCallbackIoWrapper\ThreadpoolCallbackIoWrapper.cpp" />
+    <ClCompile Include="Export\ThreadpoolCallbackTimerWrapper\ThreadpoolCallbackTimerWrapper.cpp" />
+    <ClCompile Include="Export\ThreadpoolCallbackWaitWrapper\ThreadpoolCallbackWaitWrapper.cpp" />
+    <ClCompile Include="Export\ThreadpoolCallbackWorkWrapper\ThreadpoolCallbackWorkWrapper.cpp" />
+    <ClCompile Include="ThreadpoolCallbackObject\ThreadpoolCallbackIo\ThreadpoolCallbackIo.cpp" />
+    <ClCompile Include="ThreadpoolCallbackObject\ThreadpoolCallbackTimer\ThreadpoolCallbackTimer.cpp" />
+    <ClCompile Include="ThreadpoolCallbackObject\ThreadpoolCallbackWait\ThreadpoolCallbackWait.cpp" />
+    <ClCompile Include="ThreadpoolCallbackObject\ThreadpoolCallbackWork\ThreadpoolCallbackWork.cpp" />
+    <ClCompile Include="ThreadpoolGroupManager\ThreadpoolGroupManager.cpp" />
+    <ClCompile Include="Utilities\Utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ThreadpoolCallbackObject.inl" />
+    <None Include="ThreadpoolCallbackObject\ThreadpoolCallbackObject.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -213,7 +213,6 @@ namespace ThreadpoolEngine
 
 		// 콜백 함수 호출 후 이 객체의 자동 해제 여부, 체이닝에 유용하게 사용할 수 있음
 		virtual BOOL DeleteCallbackDataAutomatically() = 0;
-
 	};
 
 
@@ -237,85 +236,55 @@ namespace ThreadpoolEngine
 		}
 	};
 
-
-	class CThreadpoolCallbackWork;
-	// Work 콜백 객체 래핑 클래스
-	class THREADPOOLENGINE_API CThreadpoolCallbackWorkWrapper
+	// Work, Wait, Timer, Io 콜백 객체의 생성/삭제를 관리하기 위한 템플릿 레퍼 글래스
+	template <class ThreadpoolCallbackObject>
+	class THREADPOOLENGINE_API CThreadpoolCallbackObjectWrapper
 	{
 	protected:
-		// Work 콜백 객체
-		CThreadpoolCallbackWork* _pThreadpoolCallbackWork;
+		// Work, Wait, Timer, Io 콜백 객체
+		ThreadpoolCallbackObject* _pThreadpoolCallbackObject;
 
 	public:
-		// 해당 객체를 생성하고 나서 꼭 ERROR_CODE를 확인할 것
-		CThreadpoolCallbackWorkWrapper(THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode);
-		~CThreadpoolCallbackWorkWrapper();
+		// Work, Wait, Timer 콜백 객체 전용 래퍼 생성자
+		CThreadpoolCallbackObjectWrapper(THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode)
+		{
+			_pThreadpoolCallbackObject = new ThreadpoolCallbackObject();
+			if (NULL == _pThreadpoolCallbackObject)
+			{
+				errorCode = ERROR_CODE_THREADPOOL_CREATE_CALLBACK_OBJECT_FAILURE;
+			}
+			else
+			{
+				// 콜백 객체를 스레드풀에 그루핑
+				_pThreadpoolCallbackObject->InitializeThreadpoolCallbackObject(threadpoolGroupParameter, errorCode);
+			}
+		}
 
-		// 콜백 데이터 기반의 비동기 콜백 함수 호출 개시 (작업이 밀려있지 않는 이상 거의 바로 시작됨)
-		BOOL ExecuteThreadpoolCallbackWork(ICallbackData* pCallbackData, ERROR_CODE& errorCode);
-	};
+		// Io 콜백 객체 전용 래퍼 생성자
+		CThreadpoolCallbackObjectWrapper(HANDLE hDevice, THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode)
+		{
+			_pThreadpoolCallbackObject = new ThreadpoolCallbackObject(hDevice);
+			if (NULL == _pThreadpoolCallbackObject)
+			{
+				errorCode = ERROR_CODE_THREADPOOL_CREATE_CALLBACK_OBJECT_FAILURE;
+			}
+			else
+			{
+				// 콜백 객체를 스레드풀에 그루핑
+				_pThreadpoolCallbackObject->InitializeThreadpoolCallbackObject(threadpoolGroupParameter, errorCode);
+			}
+		}
 
-	
-	class CThreadpoolCallbackWait;
-	// Wait 콜백 객체 래핑 클래스
-	class THREADPOOLENGINE_API CThreadpoolCallbackWaitWrapper
-	{
-	protected:
-		// Wait 콜백 객체
-		CThreadpoolCallbackWait* _pThreadpoolCallbackWait;
+		~CThreadpoolCallbackObjectWrapper()
+		{
+			if (NULL != _pThreadpoolCallbackObject)
+			{
+				// 콜백 객체를 그루핑된 스레드풀에서 제거
+				_pThreadpoolCallbackObject->FinalizeThreadpoolCallbackObject();
 
-	public:
-		// 해당 객체를 생성하고 나서 꼭 ERROR_CODE를 확인할 것
-		// hObject는 콜백 객체와 바인딩할 동기화 전용 커널 객체 핸들
-		CThreadpoolCallbackWaitWrapper(THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode);
-		~CThreadpoolCallbackWaitWrapper();
-		
-		// 동기화 커널 객체(hObject)가 signal 상태가 되면 콜백 데이터 기반의 비동기 콜백 함수 호출을 개시
-		// ullTimeout = 0이면 INFINITE 옵션(무한 대기), 0보다 크면 밀리초(10^(-3)s) 단위 기준으로 대기, 최댓값은 ULONG_MAX
-		// 절대 시간 기반의 동작 기능은 Wait 콜백 객체로 사용하지 않음 (Timer 객체 사용 권장)
-		// 즉시 실행 (Wait 콜백 객체 기준 즉시 실행 옵션도 있음) 기능은 사용하지 않음 (Work 객체 사용 권장)
-		// fCancelPendingCallbacks는 이전에 요청한 작업 취소(TRUE)/대기(FALSE) 여부
-		BOOL ExecuteThreadpoolCallbackWait(HANDLE hObject, ICallbackData* pCallbackData, ULONG ulTimeout, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode);
-	};
-
-
-	class CThreadpoolCallbackIo;
-	// Io 콜백 객체 래핑 클래스
-	class THREADPOOLENGINE_API CThreadpoolCallbackIoWrapper
-	{
-	protected:
-		// Io 콜백 객체
-		CThreadpoolCallbackIo* _pThreadpoolCallbackIo;
-
-	public:
-		// 해당 객체를 생성하고 나서 꼭 ERROR_CODE를 확인할 것
-		// hDevice는 IOCP와 바인딩할 장치
-		CThreadpoolCallbackIoWrapper(HANDLE hDevice, THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode);
-		~CThreadpoolCallbackIoWrapper();
-
-		// 바인딩된 해당 장치의 비동기 입출력 완료 시 콜백 데이터 기반의 콜백 함수가 호출되도록 개시
-		// 반드시 비동기 입출력 함수(ex WSARecv)를 호출하기 전에 이 함수를 먼저 호출해야 함
-		BOOL ExecuteThreadpoolCallbackIo(ERROR_CODE& errorCode);
-
-		// 최초 1회만 콜백 데이터를 세팅할 수 있음
-		// 콜백 데이터 변경 가능 여부 또는 하나의 장치에 다수의 콜백 데이터 세팅 가능 여부는 차후 필요에 따라 구현 결정
-		BOOL SetCallbackData(ICallbackData* pCallbackData, ERROR_CODE& errorCode);
-
-		// 비동기 입출력을 취소하고 실행 및 실행 대기 중인 콜백 함수 실행 완료를 대기
-		// bCancelPendingCallbacks는 콜백 작업 큐에 있는 작업(비동기 입출력 완료로 인한 콜백 함수 호출)을 취소할 지 여부
-		//BOOL CleanupThreadpoolCallbackIo(BOOL bCancelPendingCallbacks, ERROR_CODE& errorCode);
-
-		// 콜백 객체로부터 입출력 완료 콜백 함수 호출을 개시했던 것을 취소하는 함수 
-		// 사용 예 : ExecuteThreadpoolCallbackIo 호출 후 비동기 입출력 함수(ex WSARecv) 호출을 실패했을 경우 이 함수를 호출해야 함
-		BOOL CancelThreadpoolCallbackIo(ERROR_CODE& errorCode);
-	};
-
-
-	// 래핑 클래스들을 하나로 묶을 지 고민중..
-	template <class C>
-	class THREADPOOLENGINE_API CThreadpoolCallbackWrapper
-	{
-	protected:
-		C* _pThreadpoolCallbackObject;
+				delete _pThreadpoolCallbackObject;
+				_pThreadpoolCallbackObject = NULL;
+			}
+		}
 	};
 }
