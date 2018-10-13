@@ -6,9 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ThreadpoolEngine", "ThreadpoolEngine\ThreadpoolEngine.vcxproj", "{D288B7FC-DB3B-4963-B6D7-BD143948632A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EchoServer(EngineTest)", "EchoServer(EngineTest)\EchoServer(EngineTest).vcxproj", "{A623F591-DC0D-4129-800F-FFF00EDEA967}"
-	ProjectSection(ProjectDependencies) = postProject
-		{D288B7FC-DB3B-4963-B6D7-BD143948632A} = {D288B7FC-DB3B-4963-B6D7-BD143948632A}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EchoClient(EngineTest)", "EchoClient(EngineTest)\EchoClient(EngineTest).vcxproj", "{2348E89B-1119-4F8F-A60D-82234E8D486A}"
 EndProject

@@ -9,6 +9,8 @@
 
 namespace ThreadpoolEngine
 {
+	class CThreadpoolCallbackIo;
+
 	// Io 콜백 객체 래핑 클래스
 	class THREADPOOLENGINE_API CThreadpoolCallbackIoWrapper : public CThreadpoolCallbackObjectWrapper<CThreadpoolCallbackIo>
 	{

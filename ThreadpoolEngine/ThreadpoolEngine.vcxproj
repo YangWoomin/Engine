@@ -191,6 +191,7 @@ copy /Y "$(OutDir)\$(TargetName).lib" "$(SolutionDir)\$(Platform)\$(Configuratio
     <ClCompile Include="Utilities\Utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ExportCommon.inl" />
     <None Include="ThreadpoolCallbackObject\ThreadpoolCallbackObject.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

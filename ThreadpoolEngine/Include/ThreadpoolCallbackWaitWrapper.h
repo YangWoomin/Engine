@@ -9,6 +9,8 @@
 
 namespace ThreadpoolEngine
 {
+	class CThreadpoolCallbackWait;
+
 	// Wait 콜백 객체 래핑 클래스
 	class THREADPOOLENGINE_API CThreadpoolCallbackWaitWrapper : public CThreadpoolCallbackObjectWrapper<CThreadpoolCallbackWait>
 	{

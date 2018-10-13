@@ -9,6 +9,8 @@
 
 namespace ThreadpoolEngine
 {
+	class CThreadpoolCallbackTimer;
+
 	// Timer 콜백 객체 래핑 클래스
 	class THREADPOOLENGINE_API CThreadpoolCallbackTimerWrapper : public CThreadpoolCallbackObjectWrapper<CThreadpoolCallbackTimer>
 	{

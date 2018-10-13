@@ -236,7 +236,9 @@ namespace ThreadpoolEngine
 		}
 	};
 
-	// Work, Wait, Timer, Io 콜백 객체의 생성/삭제를 관리하기 위한 템플릿 레퍼 글래스
+
+	// Work, Wait, Timer, Io 콜백 객체의 생성/삭제를 관리하기 위한 템플릿 레퍼 클래스
+	// 이 클래스를 사용하거나 상속하여 사용하지 말고 ThreadpoolCallbackXXXWrapper 클래스를 사용하여야 함
 	template <class ThreadpoolCallbackObject>
 	class THREADPOOLENGINE_API CThreadpoolCallbackObjectWrapper
 	{
@@ -246,45 +248,15 @@ namespace ThreadpoolEngine
 
 	public:
 		// Work, Wait, Timer 콜백 객체 전용 래퍼 생성자
-		CThreadpoolCallbackObjectWrapper(THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode)
-		{
-			_pThreadpoolCallbackObject = new ThreadpoolCallbackObject();
-			if (NULL == _pThreadpoolCallbackObject)
-			{
-				errorCode = ERROR_CODE_THREADPOOL_CREATE_CALLBACK_OBJECT_FAILURE;
-			}
-			else
-			{
-				// 콜백 객체를 스레드풀에 그루핑
-				_pThreadpoolCallbackObject->InitializeThreadpoolCallbackObject(threadpoolGroupParameter, errorCode);
-			}
-		}
+		CThreadpoolCallbackObjectWrapper(THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode);
 
 		// Io 콜백 객체 전용 래퍼 생성자
-		CThreadpoolCallbackObjectWrapper(HANDLE hDevice, THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode)
-		{
-			_pThreadpoolCallbackObject = new ThreadpoolCallbackObject(hDevice);
-			if (NULL == _pThreadpoolCallbackObject)
-			{
-				errorCode = ERROR_CODE_THREADPOOL_CREATE_CALLBACK_OBJECT_FAILURE;
-			}
-			else
-			{
-				// 콜백 객체를 스레드풀에 그루핑
-				_pThreadpoolCallbackObject->InitializeThreadpoolCallbackObject(threadpoolGroupParameter, errorCode);
-			}
-		}
+		CThreadpoolCallbackObjectWrapper(HANDLE hDevice, THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode);
 
-		~CThreadpoolCallbackObjectWrapper()
-		{
-			if (NULL != _pThreadpoolCallbackObject)
-			{
-				// 콜백 객체를 그루핑된 스레드풀에서 제거
-				_pThreadpoolCallbackObject->FinalizeThreadpoolCallbackObject();
-
-				delete _pThreadpoolCallbackObject;
-				_pThreadpoolCallbackObject = NULL;
-			}
-		}
+		~CThreadpoolCallbackObjectWrapper();
 	};
 }
+
+#ifdef THREADPOOLENGINE_EXPORTS
+#include "ExportCommon.inl"
+#endif

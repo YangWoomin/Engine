@@ -109,5 +109,8 @@
     <None Include="ThreadpoolCallbackObject\ThreadpoolCallbackObject.inl">
       <Filter>ThreadpoolCallbackObject</Filter>
     </None>
+    <None Include="ExportCommon.inl">
+      <Filter>Export</Filter>
+    </None>
   </ItemGroup>
 </Project>
