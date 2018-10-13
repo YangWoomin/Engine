@@ -46,6 +46,7 @@ BOOL CThreadpoolCallbackTimer::ReleaseThreadpoolCallbackObject(BOOL fCancelPendi
 {
 	if (NULL != _pThreadpoolCallbackObject)
 	{
+		::SetThreadpoolTimer(_pThreadpoolCallbackObject, NULL, 0, 0);
 		::WaitForThreadpoolTimerCallbacks(_pThreadpoolCallbackObject, fCancelPendingCallbacks);
 		::CloseThreadpoolTimer(_pThreadpoolCallbackObject);
 		_pThreadpoolCallbackObject = NULL;
@@ -54,7 +55,7 @@ BOOL CThreadpoolCallbackTimer::ReleaseThreadpoolCallbackObject(BOOL fCancelPendi
 	return TRUE;
 }
 
-BOOL CThreadpoolCallbackTimer::ExecuteThreadpoolCallbackTimer(HANDLE hObject, ICallbackData* pCallbackData, FILETIME fileTime, DWORD dwPeriodMillisecond, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode)
+BOOL CThreadpoolCallbackTimer::ExecuteThreadpoolCallbackTimer(ICallbackData* pCallbackData, FILETIME fileTime, DWORD dwPeriodMillisecond, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode)
 {
 	// 콜백 객체가 바인딩되지 않았음
 	if (NULL == _pThreadpoolCallbackObject)
@@ -64,6 +65,7 @@ BOOL CThreadpoolCallbackTimer::ExecuteThreadpoolCallbackTimer(HANDLE hObject, IC
 	}
 
 	// 이전 작업이 완료될 때까지 대기
+	::SetThreadpoolTimer(_pThreadpoolCallbackObject, NULL, 0, 0);
 	::WaitForThreadpoolTimerCallbacks(_pThreadpoolCallbackObject, fCancelPendingCallbacks);
 
 	errorCode = (ERROR_CODE)::GetLastError();
@@ -96,4 +98,23 @@ VOID CThreadpoolCallbackTimer::CallbackThreadpoolCallbackTimer(PTP_CALLBACK_INST
 
 	// pThreadpoolCallbackWait의 유효성 검사할 방법이 딱히 없음, 외부에서 관리를 잘 해주는 수 밖에
 	pThreadpoolCallbackTimer->CallbackThreadpoolCallbackObject(CALLBACK_DATA_PARAMETER(ERROR_CODE_NONE));
+}
+
+BOOL CThreadpoolCallbackTimer::CancelThreadpoolCallbackTimer(BOOL bWaitForCallbacks, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode)
+{
+	// 콜백 객체가 바인딩되지 않았음
+	if (NULL == _pThreadpoolCallbackObject)
+	{
+		errorCode = ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_NOT_BOUND;
+		return FALSE;
+	}
+
+	// 더이상 콜백 함수 개시를 실행하지 않도록 처리
+	::SetThreadpoolTimer(_pThreadpoolCallbackObject, NULL, 0, 0);
+
+	// 콜백 함수들의 실행이 모두 완료되길 원한다면
+	if (FALSE != bWaitForCallbacks)
+	{
+		::WaitForThreadpoolTimerCallbacks(_pThreadpoolCallbackObject, fCancelPendingCallbacks);
+	}
 }
