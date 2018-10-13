@@ -28,20 +28,8 @@
     <Filter Include="Export">
       <UniqueIdentifier>{428ce5c8-dc6e-498b-9a1e-fc495fcdf345}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Export\ThreadpoolCallbackWorkWrapper">
-      <UniqueIdentifier>{9d2986be-6b86-4047-99ca-56bb1b6e352c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Export\ThreadpoolCallbackWaitWrapper">
-      <UniqueIdentifier>{ea7c97f1-8960-4e42-be16-bb78021f0811}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Export\ThreadpoolCallbackTimerWrapper">
-      <UniqueIdentifier>{1b2785a8-a887-42fc-a7b6-aea299805eca}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Export\ThreadpoolCallbackIoWrapper">
-      <UniqueIdentifier>{8902767f-e846-4ce0-9306-9951f72dfbf9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Others">
-      <UniqueIdentifier>{4ce4b772-bec3-4b0d-abe5-f710f9e27829}</UniqueIdentifier>
+    <Filter Include="Common">
+      <UniqueIdentifier>{ab972bf6-f2a6-412b-ae6e-6774135b168b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -81,8 +69,8 @@
     <ClInclude Include="Include\ThreadpoolCallbackIoWrapper.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="Others\Common.h">
-      <Filter>Others</Filter>
+    <ClInclude Include="Common\Common.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -104,17 +92,17 @@
     <ClCompile Include="ThreadpoolGroupManager\ThreadpoolGroupManager.cpp">
       <Filter>ThreadpoolGroupManager</Filter>
     </ClCompile>
-    <ClCompile Include="Export\ThreadpoolCallbackWorkWrapper\ThreadpoolCallbackWorkWrapper.cpp">
-      <Filter>Export\ThreadpoolCallbackWorkWrapper</Filter>
+    <ClCompile Include="Export\ThreadpoolCallbackIoWrapper.cpp">
+      <Filter>Export</Filter>
     </ClCompile>
-    <ClCompile Include="Export\ThreadpoolCallbackWaitWrapper\ThreadpoolCallbackWaitWrapper.cpp">
-      <Filter>Export\ThreadpoolCallbackWaitWrapper</Filter>
+    <ClCompile Include="Export\ThreadpoolCallbackTimerWrapper.cpp">
+      <Filter>Export</Filter>
     </ClCompile>
-    <ClCompile Include="Export\ThreadpoolCallbackTimerWrapper\ThreadpoolCallbackTimerWrapper.cpp">
-      <Filter>Export\ThreadpoolCallbackTimerWrapper</Filter>
+    <ClCompile Include="Export\ThreadpoolCallbackWaitWrapper.cpp">
+      <Filter>Export</Filter>
     </ClCompile>
-    <ClCompile Include="Export\ThreadpoolCallbackIoWrapper\ThreadpoolCallbackIoWrapper.cpp">
-      <Filter>Export\ThreadpoolCallbackIoWrapper</Filter>
+    <ClCompile Include="Export\ThreadpoolCallbackWorkWrapper.cpp">
+      <Filter>Export</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

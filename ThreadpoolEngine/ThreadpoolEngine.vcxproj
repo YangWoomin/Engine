@@ -105,7 +105,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;THREADPOOLENGINE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\Export\;$(ProjectDir)\Export\ThreadpoolCallbackIoWrapper\;$(ProjectDir)\Export\ThreadpoolCallbackTimerWrapper\;$(ProjectDir)\Export\ThreadpoolCallbackWaitWrapper\;$(ProjectDir)\Export\ThreadpoolCallbackWorkWrapper\;$(ProjectDir)\Include\;$(ProjectDir)\Others\;$(ProjectDir)\ThreadpoolCallbackObject\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackIo\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackTimer\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackWait\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackWork\;$(ProjectDir)\ThreadpoolGroupManager\;$(ProjectDir)\Utilities\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\Export\;$(ProjectDir)\Include\;$(ProjectDir)\Common\;$(ProjectDir)\ThreadpoolCallbackObject\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackIo\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackTimer\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackWait\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackWork\;$(ProjectDir)\ThreadpoolGroupManager\;$(ProjectDir)\Utilities\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -148,7 +148,7 @@ copy /Y "$(OutDir)\$(TargetName).lib" "$(SolutionDir)\$(Platform)\$(Configuratio
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;THREADPOOLENGINE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\Export\;$(ProjectDir)\Export\ThreadpoolCallbackIoWrapper\;$(ProjectDir)\Export\ThreadpoolCallbackTimerWrapper\;$(ProjectDir)\Export\ThreadpoolCallbackWaitWrapper\;$(ProjectDir)\Export\ThreadpoolCallbackWorkWrapper\;$(ProjectDir)\Include\;$(ProjectDir)\Others\;$(ProjectDir)\ThreadpoolCallbackObject\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackIo\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackTimer\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackWait\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackWork\;$(ProjectDir)\ThreadpoolGroupManager\;$(ProjectDir)\Utilities\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\Export\;$(ProjectDir)\Include\;$(ProjectDir)\Common\;$(ProjectDir)\ThreadpoolCallbackObject\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackIo\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackTimer\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackWait\;$(ProjectDir)\ThreadpoolCallbackObject\ThreadpoolCallbackWork\;$(ProjectDir)\ThreadpoolGroupManager\;$(ProjectDir)\Utilities\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -164,12 +164,12 @@ copy /Y "$(OutDir)\$(TargetName).lib" "$(SolutionDir)\$(Platform)\$(Configuratio
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Common\Common.h" />
     <ClInclude Include="Include\ExportCommon.h" />
     <ClInclude Include="Include\ThreadpoolCallbackIoWrapper.h" />
     <ClInclude Include="Include\ThreadpoolCallbackTimerWrapper.h" />
     <ClInclude Include="Include\ThreadpoolCallbackWaitWrapper.h" />
     <ClInclude Include="Include\ThreadpoolCallbackWorkWrapper.h" />
-    <ClInclude Include="Others\Common.h" />
     <ClInclude Include="ThreadpoolCallbackObject\ThreadpoolCallbackIo\ThreadpoolCallbackIo.h" />
     <ClInclude Include="ThreadpoolCallbackObject\ThreadpoolCallbackObject.h" />
     <ClInclude Include="ThreadpoolCallbackObject\ThreadpoolCallbackTimer\ThreadpoolCallbackTimer.h" />
@@ -179,10 +179,10 @@ copy /Y "$(OutDir)\$(TargetName).lib" "$(SolutionDir)\$(Platform)\$(Configuratio
     <ClInclude Include="Utilities\Utilities.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Export\ThreadpoolCallbackIoWrapper\ThreadpoolCallbackIoWrapper.cpp" />
-    <ClCompile Include="Export\ThreadpoolCallbackTimerWrapper\ThreadpoolCallbackTimerWrapper.cpp" />
-    <ClCompile Include="Export\ThreadpoolCallbackWaitWrapper\ThreadpoolCallbackWaitWrapper.cpp" />
-    <ClCompile Include="Export\ThreadpoolCallbackWorkWrapper\ThreadpoolCallbackWorkWrapper.cpp" />
+    <ClCompile Include="Export\ThreadpoolCallbackIoWrapper.cpp" />
+    <ClCompile Include="Export\ThreadpoolCallbackTimerWrapper.cpp" />
+    <ClCompile Include="Export\ThreadpoolCallbackWaitWrapper.cpp" />
+    <ClCompile Include="Export\ThreadpoolCallbackWorkWrapper.cpp" />
     <ClCompile Include="ThreadpoolCallbackObject\ThreadpoolCallbackIo\ThreadpoolCallbackIo.cpp" />
     <ClCompile Include="ThreadpoolCallbackObject\ThreadpoolCallbackTimer\ThreadpoolCallbackTimer.cpp" />
     <ClCompile Include="ThreadpoolCallbackObject\ThreadpoolCallbackWait\ThreadpoolCallbackWait.cpp" />
