@@ -22,12 +22,12 @@ namespace ThreadpoolEngine
 	};
 
 	// TP_WORK, TP_WAIT, TP_TIMER, TP_IO 4종류로 사용
-	template <typename TP_OBJECT>
+	template <typename PTP_OBJECT>
 	class CThreadpoolCallbackObject : public IThreadpoolCallbackObject
 	{
 	protected:
 		// 콜백 객체
-		TP_OBJECT _pThreadpoolCallbackObject;
+		PTP_OBJECT _pThreadpoolCallbackObject;
 
 		// 스레드풀 그룹에 정상적으로 추가되었는지 여부
 		BOOL _bIsGrouping;
@@ -35,11 +35,19 @@ namespace ThreadpoolEngine
 		// 콜백 함수가 호출되고 작업할 콜백 데이터
 		ICallbackData* _pCallbackData;
 
+		// 콜백 함수를 실행하는 스레드마다 콜백 객체의 인스턴스를 저장하기 위한 메모리 공간
+		// 호출된 콜백 함수 내부에서 콜백 함수의 실행이 완료되기를 기다리면 데드락 상태에 빠지게 되므로 회피하기 위해서 사용함
+		__declspec(thread) static PTP_OBJECT _pThreadpoolCallbackObjectInstance;
+
+		// 콜백 함수를 실행하는 스레드마다 콜백 인스턴스 포인터를 저장하기 위한 메모리 공간
+		// 호출된 콜백 함수 내부에서 콜백 함수의 실행이 완료되기를 기다리면 데드락 상태에 빠지게 되므로 회피하기 위해서 사용함
+		__declspec(thread) static PTP_CALLBACK_INSTANCE _pTpCallbackInstance;
+
 	public:
 		CThreadpoolCallbackObject();
 		virtual ~CThreadpoolCallbackObject();
 
-		TP_OBJECT GetThreadpoolCallbackObject();
+		PTP_OBJECT GetThreadpoolCallbackObject();
 
 		// 콜백 객체 생성자 호출 후에 이 함수를 호출해야 함
 		void InitializeThreadpoolCallbackObject(THREADPOOL_GROUP_PARAMETER threadpoolGroupParameter, ERROR_CODE& errorCode);
@@ -48,7 +56,7 @@ namespace ThreadpoolEngine
 		void FinalizeThreadpoolCallbackObject();
 
 		// 콜백 데이터 기반의 콜백 함수 호출
-		void CallbackThreadpoolCallbackObject(CALLBACK_DATA_PARAMETER callbackDataParameter);
+		void CallbackThreadpoolCallbackObject(CALLBACK_DATA_PARAMETER callbackDataParameter, PTP_CALLBACK_INSTANCE pTpCallbackInstance);
 	};
 }
 

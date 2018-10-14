@@ -20,7 +20,7 @@ CThreadpoolCallbackTimerWrapper::~CThreadpoolCallbackTimerWrapper()
 
 }
 
-BOOL CThreadpoolCallbackTimerWrapper::ExecuteThreadpoolCallbackWait(ICallbackData* pCallbackData, SYSTEMTIME callbackTime, BOOL bConvertToUtcTime, ULONG ulPeriodMillisecond, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode)
+BOOL CThreadpoolCallbackTimerWrapper::ExecuteThreadpoolCallbackTimer(ICallbackData* pCallbackData, SYSTEMTIME callbackTime, BOOL bConvertToUtcTime, ULONG ulPeriodMillisecond, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode)
 {
 	if (NULL == _pThreadpoolCallbackObject)
 	{
@@ -52,7 +52,7 @@ BOOL CThreadpoolCallbackTimerWrapper::ExecuteThreadpoolCallbackWait(ICallbackDat
 	return _pThreadpoolCallbackObject->ExecuteThreadpoolCallbackTimer(pCallbackData, FALSE != bConvertToUtcTime ? utcFileTime : fileTime, (DWORD)ulPeriodMillisecond, fCancelPendingCallbacks, errorCode);
 }
 
-BOOL CThreadpoolCallbackTimerWrapper::ExecuteThreadpoolCallbackWait(ICallbackData* pCallbackData, ULONG ulTimeoutMillisecond, ULONG ulPeriodMillisecond, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode)
+BOOL CThreadpoolCallbackTimerWrapper::ExecuteThreadpoolCallbackTimer(ICallbackData* pCallbackData, ULONG ulTimeoutMillisecond, ULONG ulPeriodMillisecond, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode)
 {
 	if (NULL == _pThreadpoolCallbackObject)
 	{

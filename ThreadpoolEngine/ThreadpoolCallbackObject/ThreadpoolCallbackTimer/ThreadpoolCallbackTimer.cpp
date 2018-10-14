@@ -64,6 +64,15 @@ BOOL CThreadpoolCallbackTimer::ExecuteThreadpoolCallbackTimer(ICallbackData* pCa
 		return FALSE;
 	}
 
+	// 이 스레드에 세팅되어 있는 콜백 객체 인스턴스가 이 클래스 인스턴스의 콜백 객체와 같고
+	// 콜백 인스턴스 값이 세팅되어 있다면 콜백 함수 내부에서 이 함수(ExecuteThreadpoolCallbackTimer)를 호출하는 것이므로 데드락을 막아야 함
+	if (_pThreadpoolCallbackObject == _pThreadpoolCallbackObjectInstance && NULL != _pTpCallbackInstance)
+	{
+		::DisassociateCurrentThreadFromCallback(_pTpCallbackInstance);
+		_pTpCallbackInstance = NULL;
+		_pThreadpoolCallbackObjectInstance = NULL;
+	}
+
 	// 이전 작업이 완료될 때까지 대기
 	::SetThreadpoolTimer(_pThreadpoolCallbackObject, NULL, 0, 0);
 	::WaitForThreadpoolTimerCallbacks(_pThreadpoolCallbackObject, fCancelPendingCallbacks);
@@ -92,12 +101,12 @@ BOOL CThreadpoolCallbackTimer::ExecuteThreadpoolCallbackTimer(ICallbackData* pCa
 	return TRUE;
 }
 
-VOID CThreadpoolCallbackTimer::CallbackThreadpoolCallbackTimer(PTP_CALLBACK_INSTANCE pInstance, PVOID pParam, PTP_TIMER pTpTimer)
+VOID CThreadpoolCallbackTimer::CallbackThreadpoolCallbackTimer(PTP_CALLBACK_INSTANCE pTpCallbackInstance, PVOID pParam, PTP_TIMER pTpTimer)
 {
 	CThreadpoolCallbackTimer* pThreadpoolCallbackTimer = (CThreadpoolCallbackTimer*)pParam;
 
 	// pThreadpoolCallbackWait의 유효성 검사할 방법이 딱히 없음, 외부에서 관리를 잘 해주는 수 밖에
-	pThreadpoolCallbackTimer->CallbackThreadpoolCallbackObject(CALLBACK_DATA_PARAMETER(ERROR_CODE_NONE));
+	pThreadpoolCallbackTimer->CallbackThreadpoolCallbackObject(CALLBACK_DATA_PARAMETER(ERROR_CODE_NONE), pTpCallbackInstance);
 }
 
 BOOL CThreadpoolCallbackTimer::CancelThreadpoolCallbackTimer(BOOL bWaitForCallbacks, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode)
@@ -111,10 +120,23 @@ BOOL CThreadpoolCallbackTimer::CancelThreadpoolCallbackTimer(BOOL bWaitForCallba
 
 	// 더이상 콜백 함수 개시를 실행하지 않도록 처리
 	::SetThreadpoolTimer(_pThreadpoolCallbackObject, NULL, 0, 0);
+	errorCode = (ERROR_CODE)::GetLastError();
 
 	// 콜백 함수들의 실행이 모두 완료되길 원한다면
 	if (FALSE != bWaitForCallbacks)
 	{
+		// 이 스레드에 세팅되어 있는 콜백 객체 인스턴스가 이 클래스 인스턴스의 콜백 객체와 같고
+		// 콜백 인스턴스 값이 세팅되어 있다면 콜백 함수 내부에서 이 함수(CancelThreadpoolCallbackTimer)를 호출하는 것이므로 데드락을 막아야 함
+		if (_pThreadpoolCallbackObject == _pThreadpoolCallbackObjectInstance && NULL != _pTpCallbackInstance)
+		{
+			::DisassociateCurrentThreadFromCallback(_pTpCallbackInstance);
+			_pTpCallbackInstance = NULL;
+			_pThreadpoolCallbackObjectInstance = NULL;
+		}
+
 		::WaitForThreadpoolTimerCallbacks(_pThreadpoolCallbackObject, fCancelPendingCallbacks);
+		errorCode = (ERROR_CODE)::GetLastError();
 	}
+
+	return ERROR_CODE_NONE == errorCode;
 }

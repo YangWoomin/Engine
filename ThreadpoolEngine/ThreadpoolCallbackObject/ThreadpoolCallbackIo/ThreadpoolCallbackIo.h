@@ -25,7 +25,7 @@ namespace ThreadpoolEngine
 		BOOL ExecuteThreadpoolCallbackIo(ERROR_CODE& errorCode);
 
 		// 콜백 객체에 대해 호출될 콜백 함수
-		static VOID CALLBACK CallbackThreadpoolCallbackIo(PTP_CALLBACK_INSTANCE pInstance, PVOID pParam, PVOID pOverlapped, ULONG ulIoResult, ULONG_PTR ulpNumberOfBytesTransferred, PTP_IO pTpIo);
+		static VOID CALLBACK CallbackThreadpoolCallbackIo(PTP_CALLBACK_INSTANCE pTpCallbackInstance, PVOID pParam, PVOID pOverlapped, ULONG ulIoResult, ULONG_PTR ulpNumberOfBytesTransferred, PTP_IO pTpIo);
 
 		// 바인딩된 장치의 중첩 입출력을 정리
 		BOOL CleanupThreadpoolCallbackIo(BOOL bCancelPendingCallbacks, ERROR_CODE& errorCode);

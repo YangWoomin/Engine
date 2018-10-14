@@ -22,7 +22,7 @@ namespace ThreadpoolEngine
 		BOOL ExecuteThreadpoolCallbackTimer(ICallbackData* pCallbackData, FILETIME fileTime, DWORD dwPeriodMillisecond, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode);
 
 		// 콜백 객체에 대해 호출될 콜백 함수
-		static VOID CALLBACK CallbackThreadpoolCallbackTimer(PTP_CALLBACK_INSTANCE pInstance, PVOID pParam, PTP_TIMER pTpTimer);
+		static VOID CALLBACK CallbackThreadpoolCallbackTimer(PTP_CALLBACK_INSTANCE pTpCallbackInstance, PVOID pParam, PTP_TIMER pTpTimer);
 
 		// 콜백 함수 호출을 개시했던 것을 취소하는 함수
 		// bWaitForCallbacks는 모든 콜백 함수들의 실행 완료를 대기할지 여부

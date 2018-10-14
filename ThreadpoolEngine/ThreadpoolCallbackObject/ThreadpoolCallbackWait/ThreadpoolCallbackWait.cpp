@@ -63,6 +63,15 @@ BOOL CThreadpoolCallbackWait::ExecuteThreadpoolCallbackWait(HANDLE hObject, ICal
 		return FALSE;
 	}
 
+	// 이 스레드에 세팅되어 있는 콜백 객체 인스턴스가 이 클래스 인스턴스의 콜백 객체와 같고
+	// 콜백 인스턴스 값이 세팅되어 있다면 콜백 함수 내부에서 이 함수(CancelThreadpoolCallbackTimer)를 호출하는 것이므로 데드락을 막아야 함
+	if (_pThreadpoolCallbackObject == _pThreadpoolCallbackObjectInstance && NULL != _pTpCallbackInstance)
+	{
+		::DisassociateCurrentThreadFromCallback(_pTpCallbackInstance);
+		_pTpCallbackInstance = NULL;
+		_pThreadpoolCallbackObjectInstance = NULL;
+	}
+
 	// 이전 작업이 완료될 때까지 대기
 	::WaitForThreadpoolWaitCallbacks(_pThreadpoolCallbackObject, fCancelPendingCallbacks);
 
@@ -99,12 +108,12 @@ BOOL CThreadpoolCallbackWait::ExecuteThreadpoolCallbackWait(HANDLE hObject, ICal
 	return TRUE;
 }
 
-VOID CThreadpoolCallbackWait::CallbackThreadpoolCallbackWait(PTP_CALLBACK_INSTANCE pInstance, PVOID pParam, PTP_WAIT pTpWait, TP_WAIT_RESULT tpWaitResult)
+VOID CThreadpoolCallbackWait::CallbackThreadpoolCallbackWait(PTP_CALLBACK_INSTANCE pTpCallbackInstance, PVOID pParam, PTP_WAIT pTpWait, TP_WAIT_RESULT tpWaitResult)
 {
 	CThreadpoolCallbackWait* pThreadpoolCallbackWait = (CThreadpoolCallbackWait*)pParam;
 
 	// pThreadpoolCallbackWait의 유효성 검사할 방법이 딱히 없음, 외부에서 관리를 잘 해주는 수 밖에
-	pThreadpoolCallbackWait->CallbackThreadpoolCallbackObject(CALLBACK_DATA_PARAMETER(ERROR_CODE_NONE, tpWaitResult, pThreadpoolCallbackWait->GetObjectHandle()));
+	pThreadpoolCallbackWait->CallbackThreadpoolCallbackObject(CALLBACK_DATA_PARAMETER(ERROR_CODE_NONE, tpWaitResult, pThreadpoolCallbackWait->GetObjectHandle()), pTpCallbackInstance);
 }
 
 HANDLE CThreadpoolCallbackWait::GetObjectHandle()

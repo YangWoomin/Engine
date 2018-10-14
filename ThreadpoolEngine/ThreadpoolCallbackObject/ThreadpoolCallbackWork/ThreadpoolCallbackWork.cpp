@@ -82,24 +82,23 @@ BOOL CThreadpoolCallbackWork::ExecuteThreadpoolCallbackWork(ICallbackData* pCall
 	return TRUE;
 }
 
-VOID CThreadpoolCallbackWork::CallbackThreadpoolCallbackWork(PTP_CALLBACK_INSTANCE pInstance, PVOID pParam, PTP_WORK pTpWork)
+VOID CThreadpoolCallbackWork::CallbackThreadpoolCallbackWork(PTP_CALLBACK_INSTANCE pTpCallbackInstance, PVOID pParam, PTP_WORK pTpWork)
 {
 	CThreadpoolCallbackWork* pThreadpoolCallbackWork = (CThreadpoolCallbackWork*)pParam;
+
+	// 스레드마다 콜백 객체를 저장하고 있는 메모리 영역을 해당 콜백 객체로 세팅
+	_pThreadpoolCallbackObjectInstance = pThreadpoolCallbackWork->GetThreadpoolCallbackObject();
+
+	// 스레드마다 콜백 인스턴스를 저장하고 있는 메모리 영역을 전달받은 콜백 인스턴스로 세팅
+	_pTpCallbackInstance = pTpCallbackInstance;
 
 	// pThreadpoolCallbackWork의 유효성 검사할 방법이 딱히 없음, 외부에서 관리를 잘 해주는 수 밖에
 	// 가장 먼저 push한 콜백 데이터부터 처리
 	ICallbackData* pCallbackData = pThreadpoolCallbackWork->PopCallbackDataFromQueue();
 	if (NULL != pCallbackData)
 	{
-		if (NULL == pThreadpoolCallbackWork->GetThreadpoolCallbackObject())
-		{
-			pCallbackData->CallbackFunction(CALLBACK_DATA_PARAMETER(ERROR_CODE_THREADPOOL_CALLBACK_OBJECT_IS_NULL));
-		}
-		else
-		{
-			// 콜백 데이터의 콜백 함수를 호출
-			pCallbackData->CallbackFunction(CALLBACK_DATA_PARAMETER(ERROR_CODE_NONE));
-		}
+		// 콜백 데이터의 콜백 함수를 호출
+		pCallbackData->CallbackFunction(CALLBACK_DATA_PARAMETER(ERROR_CODE_NONE));
 
 		// 콜백 함수 호출 후 자동으로 콜백 데이터 해제를 허용하면 해제
 		if (TRUE == pCallbackData->DeleteCallbackDataAutomatically())
@@ -107,6 +106,12 @@ VOID CThreadpoolCallbackWork::CallbackThreadpoolCallbackWork(PTP_CALLBACK_INSTAN
 			delete pCallbackData;
 		}
 	}
+
+	// 콜백 함수 호출이 완료되면 다시 NULL로 리셋
+	_pTpCallbackInstance = NULL;
+
+	// 콜백 함수 호출이 완료되면 다시 NULL로 리셋
+	_pThreadpoolCallbackObjectInstance = NULL;
 }
 
 ICallbackData* CThreadpoolCallbackWork::PopCallbackDataFromQueue()
