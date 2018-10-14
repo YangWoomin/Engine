@@ -115,3 +115,4 @@ EchoServer(EngineTest)/x64/Debug/stdafx.nativecodeanalysis.xml
 EchoServer(EngineTest)/x64/Debug/vc.nativecodeanalysis.all.xml
 x64/Debug/EchoServer(EngineTest).exe.lastcodeanalysissucceeded
 x64/Debug/EchoClient(EngineTest).exe.lastcodeanalysissucceeded
+ThreadpoolEngine/x64/Debug/ThreadpoolEngine.tlog/unsuccessfulbuild

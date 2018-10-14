@@ -53,3 +53,14 @@ BOOL CThreadpoolCallbackWaitWrapper::ExecuteThreadpoolCallbackWait(HANDLE hObjec
 
 	return bResult;
 }
+
+BOOL CThreadpoolCallbackWaitWrapper::CancelThreadpoolCallbackWait(BOOL bWaitForCallbacks, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode)
+{
+	if (NULL == _pThreadpoolCallbackObject)
+	{
+		errorCode = ERROR_CODE_THREADPOOL_CREATE_CALLBACK_OBJECT_FAILURE;
+		return FALSE;
+	}
+
+	return _pThreadpoolCallbackObject->CancelThreadpoolCallbackWait(bWaitForCallbacks, fCancelPendingCallbacks, errorCode);
+}

@@ -26,5 +26,10 @@ namespace ThreadpoolEngine
 		// 즉시 실행 (Wait 콜백 객체 기준 즉시 실행 옵션도 있음) 기능은 사용하지 않음 (Work 객체 사용 권장)
 		// fCancelPendingCallbacks는 이전에 요청한 작업 취소(TRUE)/대기(FALSE) 여부
 		BOOL ExecuteThreadpoolCallbackWait(HANDLE hObject, ICallbackData* pCallbackData, ULONG ulTimeoutMillisecond, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode);
+
+		// 콜백 함수 호출을 개시했던 것을 취소하는 함수
+		// bWaitForCallbacks는 모든 콜백 함수들의 실행 완료를 대기할지 여부
+		// fCancelPendingCallbacks는 현재 실행중인 콜백 함수의 완료만 대기할지(실행되어야 할 나머지 콜백 함수들의 호출을 취소), 아니면 모두 실행될 때까지 대기할지 여부
+		BOOL CancelThreadpoolCallbackWait(BOOL bWaitForCallbacks, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode);
 	};
 }

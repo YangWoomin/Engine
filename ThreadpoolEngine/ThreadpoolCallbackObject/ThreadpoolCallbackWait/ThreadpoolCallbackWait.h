@@ -27,6 +27,11 @@ namespace ThreadpoolEngine
 		// 콜백 객체에 대해 호출될 콜백 함수
 		static VOID CALLBACK CallbackThreadpoolCallbackWait(PTP_CALLBACK_INSTANCE pTpCallbackInstance, PVOID pParam, PTP_WAIT pTpWait, TP_WAIT_RESULT tpWaitResult);
 
+		// 콜백 함수 호출을 개시했던 것을 취소하는 함수
+		// bWaitForCallbacks는 모든 콜백 함수들의 실행 완료를 대기할지 여부
+		// fCancelPendingCallbacks는 현재 실행중인 콜백 함수의 완료만 대기할지(실행되어야 할 나머지 콜백 함수들의 호출을 취소), 아니면 모두 실행될 때까지 대기할지 여부
+		BOOL CancelThreadpoolCallbackWait(BOOL bWaitForCallbacks, BOOL fCancelPendingCallbacks, ERROR_CODE& errorCode);
+
 		HANDLE GetObjectHandle();
 	};
 }
