@@ -116,3 +116,16 @@ EchoServer(EngineTest)/x64/Debug/vc.nativecodeanalysis.all.xml
 x64/Debug/EchoServer(EngineTest).exe.lastcodeanalysissucceeded
 x64/Debug/EchoClient(EngineTest).exe.lastcodeanalysissucceeded
 ThreadpoolEngine/x64/Debug/ThreadpoolEngine.tlog/unsuccessfulbuild
+EngineBase/x64/Debug/EngineBase.Build.CppClean.log
+EngineBase/x64/Debug/EngineBase.idb
+EngineBase/x64/Debug/EngineBase.log
+EngineBase/x64/Debug/EngineBase.pdb
+EngineBase/x64/Debug/EngineBase.tlog/CL.command.1.tlog
+EngineBase/x64/Debug/EngineBase.tlog/CL.read.1.tlog
+EngineBase/x64/Debug/EngineBase.tlog/CL.write.1.tlog
+EngineBase/x64/Debug/EngineBase.tlog/EngineBase.lastbuildstate
+EngineBase/x64/Debug/EngineBase.tlog/Lib-link.read.1.tlog
+EngineBase/x64/Debug/EngineBase.tlog/Lib-link.write.1.tlog
+EngineBase/x64/Debug/EngineBase.tlog/lib.command.1.tlog
+EngineBase/x64/Debug/Object.obj
+EngineBase/x64/Debug/PodObjectHeader.obj
