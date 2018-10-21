@@ -129,3 +129,6 @@ EngineBase/x64/Debug/EngineBase.tlog/Lib-link.write.1.tlog
 EngineBase/x64/Debug/EngineBase.tlog/lib.command.1.tlog
 EngineBase/x64/Debug/Object.obj
 EngineBase/x64/Debug/PodObjectHeader.obj
+EngineBase/x64/Debug/NonPodObjectPool.obj
+x64/Debug/EngineBase.pdb
+*.pdb

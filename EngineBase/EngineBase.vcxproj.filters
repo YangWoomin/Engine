@@ -30,9 +30,15 @@
     <ClInclude Include="PodObjectHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="NonPodObjectPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NonPodObjectPool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

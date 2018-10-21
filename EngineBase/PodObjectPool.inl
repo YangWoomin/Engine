@@ -1,15 +1,21 @@
 
+using namespace EngineBase;
+
 template <class PodObject>
 CPodObjectPool<PodObject, CHECK_POD_OBJECT_TYPE>::CPodObjectPool(ERROR_CODE& errorCode)
 {
 	_pPool = NULL;
 	_dwPoolSize = 0;
 	_dwObjectSize = 0;
+	_dwObjectCount = 0;
 	_pUsablePodObject = NULL;
 
 	// 전용 힙을 생성, 일단 최대 크기 제한 없이 생성
 	_hHeap = ::HeapCreate(0, 0, 0);
-	errorCode = (ERROR_CODE)::GetLastError();
+	if (NULL == _hHeap)
+	{
+		errorCode = (ERROR_CODE)::GetLastError();
+	}
 }
 
 template <class PodObject>
@@ -19,7 +25,10 @@ CPodObjectPool<PodObject, CHECK_POD_OBJECT_TYPE>::~CPodObjectPool()
 	{
 		// 메모리 블럭을 해제하고
 		::HeapFree(_hHeap, 0, _pPool);
+	}
 
+	if (NULL != _hHeap)
+	{
 		// 힙 영역을 해제
 		::HeapDestroy(_hHeap);
 
@@ -30,6 +39,7 @@ CPodObjectPool<PodObject, CHECK_POD_OBJECT_TYPE>::~CPodObjectPool()
 		_pPool = NULL;
 		_dwPoolSize = 0;
 		_dwObjectSize = 0;
+		_dwObjectCount = 0;
 		_pUsablePodObject = NULL;
 	}
 }
@@ -61,8 +71,11 @@ BOOL CPodObjectPool<PodObject, CHECK_POD_OBJECT_TYPE>::CreatePodObjectPool(SIZE_
 	// 객체 크기
 	_dwObjectSize = sizeof(CPodObjectHeader<PodObject>);
 
+	// 객체 개수
+	_dwObjectCount = dwPodObjectAllocationCount;
+
 	// 객체 크기 x 개수
-	_dwPoolSize = _dwObjectSize * dwPodObjectAllocationCount;
+	_dwPoolSize = _dwObjectSize * _dwObjectCount;
 
 	// 객체풀을 위한 힙 영역에 메모리 블럭을 할당 및 초기화
 	_pPool = ::HeapAlloc(_hHeap, HEAP_ZERO_MEMORY, _dwPoolSize);
@@ -84,7 +97,6 @@ BOOL CPodObjectPool<PodObject, CHECK_POD_OBJECT_TYPE>::CreatePodObjectPool(SIZE_
 	{
 		pPodObjectHeader++;
 		pPodObjectHeader->_podObjectUseStatus = POD_OBJECT_USE_STATUS_USABLE;
-		pPodObjectHeader->_pPreviousUsablePodObject = pPodObjectPreviousHeader;
 		pPodObjectPreviousHeader->_pNextUsablePodObject = pPodObjectHeader;
 		pPodObjectPreviousHeader = pPodObjectHeader;
 		dwObjectCursor += _dwObjectSize;
@@ -176,7 +188,16 @@ BOOL CPodObjectPool<PodObject, CHECK_POD_OBJECT_TYPE>::ReleaseAllocatedPodObject
 	}
 
 	// 메모리 유효성 검사
-	if (FALSE == ::HeapValidate(_hHeap, 0, (LPCVOID)pPodObject))
+	//if (FALSE == ::HeapValidate(_hHeap, 0, _pPool))
+	//{
+	//	errorCode = ERROR_CODE_INVALID_POD_OBJECT;
+	//	return FALSE;
+	//}
+
+	// 위 함수 HeapValidate는 메모리 블럭 자체에 대한 유효성 검사를 하는거고 그 블럭의 일부를 검사하면 FALSE를 리턴;
+	// 따라서 그냥 직접 범위 검사를 해주는 방법으로 변경
+	CPodObjectHeader<PodObject>* pLastPodObject = (CPodObjectHeader<PodObject>*)_pPool + (_dwObjectCount - 1);
+	if ((__int64)_pPool > (__int64)pPodObject || (__int64)(&(pLastPodObject->_podObject)) < (__int64)pPodObject)
 	{
 		errorCode = ERROR_CODE_INVALID_POD_OBJECT;
 		return FALSE;
@@ -192,6 +213,7 @@ BOOL CPodObjectPool<PodObject, CHECK_POD_OBJECT_TYPE>::ReleaseAllocatedPodObject
 	pReleasePodObject->_podObjectUseStatus = POD_OBJECT_USE_STATUS_USABLE;
 
 	// 사용 가능한 객체가 있으면 해제 되는 객체로 바꿔서 세팅
+	// 반환하는 객체를 리스트의 제일 앞에 넣어야 locality 성질을 잘 받음
 	if (NULL != _pUsablePodObject)
 	{
 		pReleasePodObject->_pNextUsablePodObject = _pUsablePodObject;
