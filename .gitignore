@@ -132,3 +132,7 @@ EngineBase/x64/Debug/PodObjectHeader.obj
 EngineBase/x64/Debug/NonPodObjectPool.obj
 x64/Debug/EngineBase.pdb
 *.pdb
+EngineBase/x64/Debug/Lock.obj
+x64/Debug/BasisEngine.ilk
+x64/Debug/EngineBase.pdb
+x64/Debug/EngineBase.pdb

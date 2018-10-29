@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+#include <mutex>
+
 #include <map>
 #include <set>
 #include <list>
@@ -22,34 +24,34 @@ namespace EngineBase
 
 		// 프로젝트 내부의 에러 코드 기준값
 		ERROR_CODE_BASE
-		= INT_MIN, // -2147483647 - 1
+		= MINLONGLONG, // ~(0x7fffffffffffffff)
 
-				   // 힙 영역 생성에 실패
+		// 힙 영역 생성에 실패
 		ERROR_CODE_HEAP_CREATION_FAILED
-		= ERROR_CODE_BASE - 1,
+		= ERROR_CODE_BASE + 1,
 
 		// 메모리 블럭이 이미 할당됨
 		ERROR_CODE_MEMORY_BLOCK_ALREADY_ALLOCATED
-		= ERROR_CODE_BASE - 2,
+		= ERROR_CODE_BASE + 2,
 
 		// 메모리 블럭이 할당되지 않음
 		ERROR_CODE_MEMORY_BLOCK_NEVER_ALLOCATED
-		= ERROR_CODE_BASE - 3,
+		= ERROR_CODE_BASE + 3,
 
-		// 유효하지 않은 pod 객체 개수
-		ERROR_CODE_INVALID_POD_OBJECT_COUNT
-		= ERROR_CODE_BASE - 4,
+		// 유효하지 않은 객체 개수
+		ERROR_CODE_INVALID_OBJECT_COUNT
+		= ERROR_CODE_BASE + 4,
 
 		// 사용 가능한 pod 객체가 없음
-		ERROR_CODE_NO_USABLE_POD_OBJECT
-		= ERROR_CODE_BASE - 5,
+		ERROR_CODE_NO_USABLE_OBJECT
+		= ERROR_CODE_BASE + 5,
 
 		// 객체풀이 가득 차있는 상태
-		ERROR_CODE_FULL_POD_OBJECTS_IN_MEMORY_BLOCK
-		= ERROR_CODE_BASE - 6,
+		ERROR_CODE_FULL_OBJECTS_IN_MEMORY_BLOCK
+		= ERROR_CODE_BASE + 6,
 
-		// 유효하지 않은 pod 객체의 반환
-		ERROR_CODE_INVALID_POD_OBJECT
-		= ERROR_CODE_BASE - 7,
+		// 유효하지 않은 객체의 반환
+		ERROR_CODE_INVALID_OBJECT_RETURN
+		= ERROR_CODE_BASE + 7,
 	};
 }

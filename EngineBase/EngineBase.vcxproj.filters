@@ -21,30 +21,36 @@
     <ClInclude Include="Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Object.h">
+    <ClInclude Include="Singleton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PodObjectPool.h">
+    <ClInclude Include="ObjectHeader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PodObjectHeader.h">
+    <ClInclude Include="ObjectInPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NonPodObjectPool.h">
+    <ClInclude Include="ObjectPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Lock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Object.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="NonPodObjectPool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="PodObjectPool.inl">
+    <None Include="Singleton.inl">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="ObjectPool.inl">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ObjectInPool.inl">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Lock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
