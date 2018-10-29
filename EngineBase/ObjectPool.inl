@@ -15,7 +15,7 @@ CObjectPool<Object>::CObjectPool()
 	_pNextUsableChunk = NULL;
 
 	// 전용 힙을 생성, 일단 최대 크기 제한 없이 생성
-	// 이 클래스의 사용은 스레드에 안전을 보장받아야 함
+	// 이 클래스의 사용은 스레드에 안전을 보장받아야 함 -> ㄴㄴ 안전을 보장해줌
 	// 이 클래스로부터 할당받은 힙 영역의 메모리 블럭 일부인 Object 객체를 사용하는 여러 스레드들의 접근과 
 	// HEAP_NO_SERIALIZE 옵션을 사용해서 힙 영역의 메모리 블럭을 할당/해제하는 접근은 별개의 동기화 작업임
 	// HEAP_NO_SERIALIZE : 힙 영역의 메모리 블럭을 할당/해제하는 여러 스레드들의 동기적 접근을 보장하지 않음
@@ -179,8 +179,8 @@ BOOL CObjectPool<Object>::AcquireAllocatedObject(Object** ppAllocatedObject, ERR
 	// 사용 중인 객체 개수를 증가시켜 보고
 	LONG lCurrentUsedObjectCount = ::InterlockedIncrement(&_lCurrentUsedObjectCount);
 
-	// 할당된 개수 이상이면 사용 못하는 걸로 처리 (사용 가능한 객체를 1개는 남기도록 함)
-	if (lCurrentUsedObjectCount >= _dwObjectCount)
+	// 할당된 개수를 초과하면 사용 못하는 걸로 처리
+	if (lCurrentUsedObjectCount > _dwObjectCount)
 	{
 		// 1 증가시켰으니 1 감소는 해주고 가야지
 		::InterlockedDecrement(&_lCurrentUsedObjectCount);
@@ -188,7 +188,7 @@ BOOL CObjectPool<Object>::AcquireAllocatedObject(Object** ppAllocatedObject, ERR
 		return FALSE;
 	}
 
-	// 위의 계산 방식에 따라 사용 가능한 객체를 최소한 1개는 남겨두므로 _pNextUsableChunk->_pNextUsableObjectHeader가 NULL일 수 없음
+	// _pNextUsableChunk->_pNextUsableObjectHeader가 NULL이어도 됨
 	Chunk* pNextUsableChunk = _pNextUsableChunk;
 	Chunk* pUsableChunk = NULL;
 
