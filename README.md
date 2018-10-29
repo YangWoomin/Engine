@@ -27,6 +27,6 @@
 #### 4.6. UdpEngine
 * 일정 미정 (오픈소스 RUDP 기반 UDP 엔진 제작 예정)
 #### 4.7. DBEngine
-* 일정 미정 (ODBC, ADO 연동을 통한 MS-SQL DB 연동 엔진 제작 예정)
+* 일정 미정 (ODBC, ADO 등의 연동을 통한 DB 연동 엔진 제작 예정)
 #### 4.8. GameEngine
 * 일정 미정 (게임 컴포넌트들의 동기화 엔진)
