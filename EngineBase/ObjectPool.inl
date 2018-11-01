@@ -125,12 +125,15 @@ BOOL CObjectPool<Object>::AllocateInitialBlock(SIZE_T dwInitialObjectCount, SIZE
 		return FALSE;
 	}
 
-	// 정렬된 chunk 크기, 가독성을 위해 플랫폼 별 전처리기로 구분
+	// 정렬된 chunk 크기
+	/*
 #ifdef _WIN64
 	_dwChunkSize = (sizeof(Chunk) + sizeof(Object) + (8 - 1)) & ~(8 - 1);
 #else
 	_dwChunkSize = (sizeof(Chunk) + sizeof(Object) + (4 - 1)) & ~(4 - 1);
 #endif
+	*/
+	_dwChunkSize = (sizeof(Chunk) + sizeof(Object) + (sizeof(PVOID) - 1)) & ~(sizeof(PVOID) - 1);
 
 	// 객체 개수
 	_dwObjectCount = dwInitialObjectCount;
