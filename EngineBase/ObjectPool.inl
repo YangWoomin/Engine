@@ -80,9 +80,6 @@ void CObjectPool<Object>::ChainingAllocatedObjects(PVOID pBlock, SIZE_T dwChunkS
 			pPreviousChunk->_pNextUsableObjectHeader = pChunkCursor;
 		}
 
-		// 사용 가능 상태로 세팅
-		pChunkCursor->_ObjectUseStatus = OBJECT_USE_STATUS_USABLE;
-
 		// 객체 헤더 멤버인 객체 포인터에 객체의 영역을 세팅 (헤더 바로 다음 영역)
 		pChunkCursor->_pObject = (Object*)(pChunkCursor + 1);
 
@@ -128,8 +125,12 @@ BOOL CObjectPool<Object>::AllocateInitialBlock(SIZE_T dwInitialObjectCount, SIZE
 		return FALSE;
 	}
 
-	// chunk 크기
-	_dwChunkSize = sizeof(Chunk) + sizeof(Object);
+	// 정렬된 chunk 크기, 가독성을 위해 플랫폼 별 전처리기로 구분
+#ifdef _WIN64
+	_dwChunkSize = (sizeof(Chunk) + sizeof(Object) + (8 - 1)) & ~(8 - 1);
+#else
+	_dwChunkSize = (sizeof(Chunk) + sizeof(Object) + (4 - 1)) & ~(4 - 1);
+#endif
 
 	// 객체 개수
 	_dwObjectCount = dwInitialObjectCount;
@@ -204,9 +205,6 @@ BOOL CObjectPool<Object>::AcquireAllocatedObject(Object** ppAllocatedObject, ERR
 
 	// 빼오는 데 성공했다면
 	*ppAllocatedObject = pUsableChunk->_pObject;
-
-	// 사용 중인 상태로 세팅
-	pUsableChunk->_ObjectUseStatus = OBJECT_USE_STATUS_USED;
 
 	// 사용될 객체의 chunk의 사용 가능한 chunk 해제
 	pUsableChunk->_pNextUsableObjectHeader = NULL;
@@ -354,9 +352,6 @@ BOOL CObjectPool<Object>::ReturnAllocatedObject(Object* pReturningObject, ERROR_
 	// 반환하는 chunk를 찾고
 	// Chunk* pReturnChunk = reinterpret_cast<Chunk*>(static_cast<BYTE*>(_pBlock) + dwReturningChunkOffset);
 	Chunk* pReturnChunk = (Chunk*)((BYTE*)_pBlock + dwReturningChunkOffset);
-
-	// 사용 가능한 상태로 세팅
-	pReturnChunk->_ObjectUseStatus = OBJECT_USE_STATUS_USABLE;
 
 
 	// 테스트2 시작
