@@ -10,11 +10,6 @@ namespace EngineBase
 	template <class ChildClass>
 	class CObjectInPool
 	{
-	public:
-		// 객체풀 사용 여부
-		// AllocateObjectPool를 통해 객체풀 생성 시 TRUE 세팅
-		static BOOL _bUseObjectPool;
-
 	protected:
 		CObjectInPool();
 		virtual ~CObjectInPool();

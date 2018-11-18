@@ -140,6 +140,7 @@
     <ClInclude Include="ObjectHeader.h" />
     <ClInclude Include="ObjectInPool.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="STLAllocator.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ObjectInPool.inl" />

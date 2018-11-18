@@ -36,6 +36,9 @@
     <ClInclude Include="Lock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="STLAllocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Singleton.inl">

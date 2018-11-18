@@ -19,7 +19,9 @@ CObjectPool<Object>::CObjectPool()
 	// 이 클래스로부터 할당받은 힙 영역의 메모리 블럭 일부인 Object 객체를 사용하는 여러 스레드들의 접근과 
 	// HEAP_NO_SERIALIZE 옵션을 사용해서 힙 영역의 메모리 블럭을 할당/해제하는 접근은 별개의 동기화 작업임
 	// HEAP_NO_SERIALIZE : 힙 영역의 메모리 블럭을 할당/해제하는 여러 스레드들의 동기적 접근을 보장하지 않음
-	_hHeap = ::HeapCreate(HEAP_NO_SERIALIZE, 0, 0);
+	// _hHeap = ::HeapCreate(HEAP_NO_SERIALIZE, 0, 0);
+	// 힙 영역에 대한 메모리 관련 작업에 대해서 스레드들 사이에 동기화를 보장하도록 수정
+	_hHeap = ::HeapCreate(0, 0, 0);
 	if (NULL == _hHeap)
 	{
 		_errorCode = (ERROR_CODE)::GetLastError();
@@ -32,7 +34,9 @@ CObjectPool<Object>::~CObjectPool()
 	if (NULL != _hHeap && NULL != _pBlock)
 	{
 		// 메모리 블럭을 해제하고
-		::HeapFree(_hHeap, HEAP_NO_SERIALIZE, _pBlock);
+		// ::HeapFree(_hHeap, HEAP_NO_SERIALIZE, _pBlock);
+		// 힙 영역에 대한 메모리 관련 작업에 대해서 스레드들 사이에 동기화를 보장하도록 수정
+		::HeapFree(_hHeap, 0, _pBlock);
 
 		_pBlock = NULL;
 	}
@@ -93,6 +97,65 @@ void CObjectPool<Object>::ChainingAllocatedObjects(PVOID pBlock, SIZE_T dwChunkS
 }
 
 template <class Object>
+BOOL CObjectPool<Object>::AllocateObject(Object** ppAllocatedObject, SIZE_T dwAllocationCount, ERROR_CODE& errorCode)
+{
+	// 별다른 예외 처리가 없음
+
+	// 힙에 직접 할당
+	// 크기는 Object 사이즈만큼 할당
+	// 이유는 이 클래스에서 따로 관리하지 않을 것이기 때문임
+	(*ppAllocatedObject) = (Object*)::HeapAlloc(_hHeap, HEAP_ZERO_MEMORY, sizeof(Object) * dwAllocationCount);
+
+	// 할당에 실패했다면
+	if (NULL == (*ppAllocatedObject))
+	{
+		errorCode = (ERROR_CODE)::GetLastError();
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+template <class Object>
+BOOL CObjectPool<Object>::DeallocateObject(Object* pReturningObject, ERROR_CODE& errorCode)
+{
+	// 반환하는 메모리가 유효한지 확인
+	// 참고 사이트 : https://docs.microsoft.com/en-us/windows/desktop/api/HeapApi/nf-heapapi-heapvalidate
+	// 일부 중요 내용
+	// If the specified heap or memory block is invalid, the return value is zero.
+	// On a system set up for debugging, the HeapValidate function then displays 
+	// debugging messages that describe the part of the heap or memory block that is invalid, 
+	// and stops at a hard - coded breakpoint so that you can examine the system 
+	// to determine the source of the invalidity.
+	// The HeapValidate function does not set the thread's last error value. 
+	// There is no extended error information for this function.
+	// do not call GetLastError
+	// 이 함수 테스트하면서 자꾸 예외창 뜨길래 메모리 할당한 힙이 다르면 예외가 발생되는줄 알았는데
+	// 디버깅 모드에서만 breakpoint 예외 올려주는거고 디버깅 모드가 아니면 조용히 TRUE/FALSE만 반환함
+	// 정확히는 해당 힙에서 관리되는 메모리 관련 구조체(control structures)들을 통해 유효성 검사한다는 말이 있고 (이 줄은 official)
+	// 아마 해당 힙을 통해서 할당하지 않은 메모리는 관련 구조체가 없기 때문에 FALSE를 리턴하는듯 (이 줄은 내 추측)
+	// 위 내용에 추가 내용으로 스레드들 간에 이 힙 관련한 접근이 block되니 성능 감소가 언급되는데
+	// 이 클래스 내부에서 일일히 메모리 주소들 관리하는 것보다 훨씬 이득일 것 같아서 그냥 쓰기로 함
+	if (FALSE == ::HeapValidate(_hHeap, 0, (LPCVOID)pReturningObject))
+	{
+		// 위 내용대로 GetLastError를 쓰지 말 것
+		errorCode = ERROR_CODE_INVALID_OBJECT_RETURN; 
+		return FALSE;
+	}
+
+	// 힙에 직접 할당한 객체를 해제
+	if (FALSE == ::HeapFree(_hHeap, 0, (LPVOID)pReturningObject))
+	{
+		// GetLastError는 이 객체 해제 함수 호출로부터 ::HeapFree 함수 실패를 알린 후 추출하도록 수정
+		// errorCode = (ERROR_CODE)::GetLastError();
+		errorCode = ERROR_CODE_FAILURE_IN_HEAP_FREE_FUNCTION;
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+template <class Object>
 BOOL CObjectPool<Object>::AllocateInitialBlock(SIZE_T dwInitialObjectCount, SIZE_T dwAdditoryObjectCount, ERROR_CODE& errorCode)
 {
 	CLock lock(_criticalSection);
@@ -135,23 +198,25 @@ BOOL CObjectPool<Object>::AllocateInitialBlock(SIZE_T dwInitialObjectCount, SIZE
 	*/
 	_dwChunkSize = (sizeof(Chunk) + sizeof(Object) + (sizeof(PVOID) - 1)) & ~(sizeof(PVOID) - 1);
 
-	// 객체 개수
-	_dwObjectCount = dwInitialObjectCount;
-
-	// HeapReAlloc 호출해서 메모리 블럭 크기를 확장할 때 추가로 할당할 객체 개수
-	_dwAdditoryObjectCount = dwAdditoryObjectCount;
-
-	// 블럭 크기 = chunk 크기 x 개수
-	_dwBlockSize = _dwChunkSize * _dwObjectCount;
-
 	// 메모리 블럭을 할당 및 초기화
 	// HEAP_ZERO_MEMORY 옵션 : 메모리 블럭을 할당 받고 0으로 초기화
-	_pBlock = ::HeapAlloc(_hHeap, HEAP_ZERO_MEMORY | HEAP_NO_SERIALIZE, _dwBlockSize);
+	// _pBlock = ::HeapAlloc(_hHeap, HEAP_ZERO_MEMORY | HEAP_NO_SERIALIZE, _dwBlockSize);
+	// 힙 영역에 대한 메모리 관련 작업에 대해서 스레드들 사이에 동기화를 보장하도록 수정
+	_pBlock = ::HeapAlloc(_hHeap, HEAP_ZERO_MEMORY, dwInitialObjectCount * _dwChunkSize);
 	if (NULL == _pBlock)
 	{
 		errorCode = (ERROR_CODE)::GetLastError();
 		return FALSE;
 	}
+
+	// 객체 개수
+	_dwObjectCount = dwInitialObjectCount;
+
+	// HeapReAlloc 호출해서 메모리 블럭 크기를 확장할 때 추가로 할당할 객체 개수
+	// _dwAdditoryObjectCount = dwAdditoryObjectCount; // 사용하지 않음
+
+	// 블럭 크기 = chunk 크기 x 개수
+	_dwBlockSize = _dwChunkSize * _dwObjectCount;
 
 	// chunk 리스트 체이닝
 	ChainingAllocatedObjects(_pBlock, _dwChunkSize, _dwBlockSize);
@@ -175,8 +240,9 @@ BOOL CObjectPool<Object>::AcquireAllocatedObject(Object** ppAllocatedObject, ERR
 	// 메모리 블럭을 할당했는지 검사
 	if (NULL == _pBlock)
 	{
-		errorCode = ERROR_CODE_MEMORY_BLOCK_NEVER_ALLOCATED;
-		return FALSE;
+		// 메모리 블럭을 할당하지 않았어도 기본적으로 힙에서 할당하도록 수정
+		// errorCode = ERROR_CODE_MEMORY_BLOCK_NEVER_ALLOCATED;
+		return AllocateObject(ppAllocatedObject, 1, errorCode);
 	}
 
 	// 테스트2 시작
@@ -184,11 +250,20 @@ BOOL CObjectPool<Object>::AcquireAllocatedObject(Object** ppAllocatedObject, ERR
 	LONG lCurrentUsedObjectCount = ::InterlockedIncrement(&_lCurrentUsedObjectCount);
 
 	// 할당된 개수를 초과하면 사용 못하는 걸로 처리
+	// ㄴㄴ 직접 힙에 할당해보는 방법으로 처리
 	if (lCurrentUsedObjectCount > _dwObjectCount)
 	{
 		// 1 증가시켰으니 1 감소는 해주고 가야지
 		::InterlockedDecrement(&_lCurrentUsedObjectCount);
-		errorCode = ERROR_CODE_NO_USABLE_OBJECT;
+
+		// 힙에 직접 할당하도록 함
+		if (FALSE != AllocateObject(ppAllocatedObject, 1, errorCode))
+		{
+			// 객체풀이 가득찬 상태인 것은 알리도록 함
+			errorCode = ERROR_CODE_FULL_OBJECTS_IN_MEMORY_BLOCK;
+			return TRUE;
+		}
+		
 		return FALSE;
 	}
 
@@ -308,8 +383,10 @@ BOOL CObjectPool<Object>::ReturnAllocatedObject(Object* pReturningObject, ERROR_
 	// 메모리 블럭을 할당했는지 검사
 	if (NULL == _pBlock)
 	{
-		errorCode = ERROR_CODE_MEMORY_BLOCK_NEVER_ALLOCATED;
-		return FALSE;
+		// 메모리 블럭을 할당하지 않았어도 기본적으로 힙에서 할당하도록 수정
+		// errorCode = ERROR_CODE_MEMORY_BLOCK_NEVER_ALLOCATED;
+		// 따라서 객체풀에서 사용하고 있지 않은 객체는 힙에서 직접 해제하도록 함
+		return DeallocateObject(pReturningObject, errorCode);
 	}
 
 	// 메모리 유효성 검사
@@ -342,8 +419,8 @@ BOOL CObjectPool<Object>::ReturnAllocatedObject(Object* pReturningObject, ERROR_
 	// 유효 범위 안에 있는 메모리 주소인지 검사
 	if (ullFirstObjectAddress > ullReturningObjectAddress || ullLastObjectAddress < ullReturningObjectAddress)
 	{
-		errorCode = ERROR_CODE_INVALID_OBJECT_RETURN;
-		return FALSE;
+		// 객체풀에서 사용하고 있지 않은 객체는 힙에서 직접 해제하도록 함
+		return DeallocateObject(pReturningObject, errorCode);
 	}
 
 	// 일반적으로 Object 공간이 메모리 접근의 효율성을 위해 패딩 바이트가 추가되어 할당되겠지만
@@ -388,4 +465,30 @@ BOOL CObjectPool<Object>::ReturnAllocatedObject(Object* pReturningObject, ERROR_
 
 	return TRUE;
 	*/
+}
+
+template <class Object>
+BOOL CObjectPool<Object>::AcquireAllocatedMultipleObjects(Object** ppAllocatedMultipleObjects, SIZE_T dwAllocationCount, ERROR_CODE& errorCode)
+{
+	// 기존 에러가 있는지 검사
+	if (ERROR_CODE_NONE != _errorCode)
+	{
+		errorCode = _errorCode;
+		return FALSE;
+	}
+
+	return AllocateObject(ppAllocatedMultipleObjects, dwAllocationCount, errorCode);
+}
+
+template <class Object>
+BOOL CObjectPool<Object>::ReturnAllocatedMultipleObjects(Object* pReturningMultipleObjects, ERROR_CODE& errorCode)
+{
+	// 기존 에러가 있는지 검사
+	if (ERROR_CODE_NONE != _errorCode)
+	{
+		errorCode = _errorCode;
+		return FALSE;
+	}
+
+	return DeallocateObject(pReturningMultipleObjects, errorCode);
 }

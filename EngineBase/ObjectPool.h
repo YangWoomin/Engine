@@ -55,17 +55,31 @@ namespace EngineBase
 		// chunk들을 체이닝하기 위한 함수
 		void ChainingAllocatedObjects(PVOID pBlock, SIZE_T dwChunkSize, SIZE_T dwBlockSize);
 
+		// 힙에서 직접 객체를 할당하는 인라인 함수
+		// 이 클래스 멤버 함수에서만 사용되기 때문에 별다른 예외 검사 없이 수행함
+		inline BOOL AllocateObject(Object** ppAllocatedObject, SIZE_T dwAllocationCount, ERROR_CODE& errorCode);
+
+		// 힙에서 직접 객체를 해제하는 인라인 함수
+		// 이 클래스 멤버 함수에서만 사용되기 때문에 별다른 예외 검사 없이 수행함
+		inline BOOL DeallocateObject(Object* pReturningObject, ERROR_CODE& errorCode);
+
 	public:
 		~CObjectPool();
 
 		// 최초 메모리 블럭 할당 함수
 		BOOL AllocateInitialBlock(SIZE_T dwInitialObjectCount, SIZE_T dwAdditoryObjectCount, ERROR_CODE& errorCode);
 
-		// 객체 획득 함수
+		// 객체 획득 함수 (1개만 획득)
 		BOOL AcquireAllocatedObject(Object** ppAllocatedObject, ERROR_CODE& errorCode);
 
-		// 객체 반환 함수
+		// 객체 반환 함수 (1개만 반환)
 		BOOL ReturnAllocatedObject(Object* pReturningObject, ERROR_CODE& errorCode);
+
+		// 객체 획득 함수 (2개 이상 획득)
+		BOOL AcquireAllocatedMultipleObjects(Object** ppAllocatedMultipleObjects, SIZE_T dwAllocationCount, ERROR_CODE& errorCode);
+
+		// 객체 반환 함수 (2개 이상 반환)
+		BOOL ReturnAllocatedMultipleObjects(Object* pReturningMultipleObjects, ERROR_CODE& errorCode);
 	};
 }
 

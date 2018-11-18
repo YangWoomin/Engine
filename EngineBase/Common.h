@@ -10,6 +10,8 @@
 #include <set>
 #include <list>
 #include <queue>
+#include <vector>
+#include <deque>
 
 namespace EngineBase
 {
@@ -42,7 +44,7 @@ namespace EngineBase
 		ERROR_CODE_INVALID_OBJECT_COUNT
 		= ERROR_CODE_BASE + 4,
 
-		// 사용 가능한 pod 객체가 없음
+		// 사용 가능한 객체가 없음
 		ERROR_CODE_NO_USABLE_OBJECT
 		= ERROR_CODE_BASE + 5,
 
@@ -53,5 +55,13 @@ namespace EngineBase
 		// 유효하지 않은 객체의 반환
 		ERROR_CODE_INVALID_OBJECT_RETURN
 		= ERROR_CODE_BASE + 7,
+
+		// ::HeapFree 함수 호출에 실패
+		ERROR_CODE_FAILURE_IN_HEAP_FREE_FUNCTION
+		= ERROR_CODE_BASE + 8,
+
+		// 엔진 정의 에러 코드 최댓값
+		ERROR_CODE_MAX
+		= ERROR_CODE_BASE + MAXINT
 	};
 }
